@@ -1,0 +1,170 @@
+@model Project_CakeShop_66095681.Models.Db.User
+@{
+    ViewData["Title"] = "โปรไฟล์ของฉัน";
+}
+
+<style>
+    body { background: #f8f9fa; font-family: 'Kanit', sans-serif; }
+    .profile-container { max-width: 680px; margin: 50px auto; padding: 0 20px 60px; }
+
+    .profile-card {
+        background: #fff; border-radius: 24px; padding: 40px;
+        border: 1px solid #f0f0f0;
+        box-shadow: 0 4px 20px rgba(0,0,0,0.05);
+        margin-bottom: 20px;
+    }
+
+    .avatar-circle {
+        width: 90px; height: 90px;
+        background: linear-gradient(135deg, #1a1a1a, #444);
+        color: white; border-radius: 50%;
+        display: flex; align-items: center; justify-content: center;
+        font-size: 2.2rem; font-weight: 700;
+        margin: 0 auto 16px;
+    }
+
+    .role-badge {
+        display: inline-block; padding: 4px 14px; border-radius: 50px;
+        font-size: 0.75rem; font-weight: 700;
+        background: #e6fcf5; color: #087f5b; border: 1px solid #c3fae8;
+    }
+
+    .form-label { font-weight: 600; font-size: 0.88rem; color: #555; }
+
+    .form-control {
+        border-radius: 12px; border: 1.5px solid #eee;
+        padding: 10px 16px; font-family: 'Kanit', sans-serif; transition: 0.2s;
+    }
+
+    .form-control:focus { border-color: #1a1a1a; box-shadow: none; }
+
+    .btn-save {
+        background: #1a1a1a; color: white; border: none;
+        border-radius: 50px; padding: 12px 36px; font-weight: 700;
+        transition: 0.3s; font-family: 'Kanit', sans-serif; cursor: pointer;
+    }
+
+    .btn-save:hover { background: #198754; color: white; transform: translateY(-2px); }
+
+    .section-title {
+        font-weight: 700; font-size: 1rem; color: #1a1a1a;
+        margin-bottom: 20px; padding-bottom: 10px;
+        border-bottom: 2px solid #f0f0f0;
+    }
+
+    .readonly-field {
+        background: #f8f8f8; border-radius: 12px; padding: 10px 16px;
+        font-size: 0.9rem; color: #666; border: 1.5px solid #eee;
+    }
+</style>
+
+<div class="profile-container">
+    <div class="mb-4">
+        <a asp-controller="Home" asp-action="Welcome" class="text-muted text-decoration-none small">
+            <i class="bi bi-chevron-left me-1"></i>กลับหน้าหลัก
+        </a>
+    </div>
+
+    @if (Model != null)
+    {
+        @if (TempData["Success"] != null)
+        {
+            <div class="alert alert-success rounded-4 alert-dismissible fade show">
+                <i class="bi bi-check-circle me-2"></i>@TempData["Success"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+        @if (TempData["Error"] != null)
+        {
+            <div class="alert alert-danger rounded-4 alert-dismissible fade show">
+                <i class="bi bi-exclamation-circle me-2"></i>@TempData["Error"]
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+        }
+
+        @* Avatar *@
+        <div class="profile-card text-center">
+            <div class="avatar-circle">@Model.FullName?.Substring(0,1).ToUpper()</div>
+            <h4 class="fw-bold mb-1">@Model.FullName</h4>
+            <span class="role-badge">@Model.UserRole</span>
+            <div class="mt-2 text-muted small">Username: @Model.Username</div>
+        </div>
+
+        @* แก้ไขข้อมูล *@
+        <div class="profile-card">
+            <div class="section-title"><i class="bi bi-person-gear me-2"></i>แก้ไขข้อมูลส่วนตัว</div>
+            <form asp-action="UpdateProfile" method="post">
+                <input type="hidden" name="userId" value="@Model.UserId" />
+
+                <div class="mb-3">
+                    <label class="form-label">Username (ไม่สามารถแก้ไขได้)</label>
+                    <div class="readonly-field">@Model.Username</div>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">ชื่อ-นามสกุล</label>
+                    <input type="text" name="fullName" class="form-control"
+                           value="@Model.FullName" placeholder="ชื่อ-นามสกุล" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">อีเมล</label>
+                    <input type="email" name="email" class="form-control"
+                           value="@Model.Email" placeholder="example@email.com">
+                </div>
+
+                <button type="submit" class="btn-save">
+                    <i class="bi bi-check-lg me-2"></i>บันทึกข้อมูล
+                </button>
+            </form>
+        </div>
+
+        @* เปลี่ยนรหัสผ่าน *@
+        <div class="profile-card">
+            <div class="section-title"><i class="bi bi-lock me-2"></i>เปลี่ยนรหัสผ่าน</div>
+            <form asp-action="ChangePassword" method="post">
+                <input type="hidden" name="userId" value="@Model.UserId" />
+
+                <div class="mb-3">
+                    <label class="form-label">รหัสผ่านปัจจุบัน</label>
+                    <input type="password" name="currentPassword" class="form-control"
+                           placeholder="กรอกรหัสผ่านปัจจุบัน" required>
+                </div>
+
+                <div class="mb-3">
+                    <label class="form-label">รหัสผ่านใหม่</label>
+                    <input type="password" name="newPassword" class="form-control"
+                           placeholder="รหัสผ่านใหม่ (อย่างน้อย 6 ตัว)" minlength="6" required>
+                </div>
+
+                <div class="mb-4">
+                    <label class="form-label">ยืนยันรหัสผ่านใหม่</label>
+                    <input type="password" name="confirmPassword" class="form-control"
+                           placeholder="พิมพ์รหัสผ่านใหม่อีกครั้ง" required>
+                </div>
+
+                <button type="submit" class="btn-save" style="background:#c0392b;">
+                    <i class="bi bi-shield-lock me-2"></i>เปลี่ยนรหัสผ่าน
+                </button>
+            </form>
+        </div>
+
+        <div class="d-flex gap-3">
+            <a asp-controller="User" asp-action="OrderHistory"
+               class="btn btn-outline-dark rounded-pill px-4 fw-bold">
+                <i class="bi bi-clock-history me-2"></i>ประวัติสั่งซื้อ
+            </a>
+            <a asp-controller="User" asp-action="ProductCustomer"
+               class="btn btn-outline-success rounded-pill px-4 fw-bold">
+                <i class="bi bi-bag me-2"></i>เลือกซื้อเค้ก
+            </a>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <p class="text-muted">ไม่พบข้อมูลผู้ใช้</p>
+            <a asp-controller="User" asp-action="Login" class="btn btn-dark rounded-pill px-4">เข้าสู่ระบบ</a>
+        </div>
+    }
+</div>

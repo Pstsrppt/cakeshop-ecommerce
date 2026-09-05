@@ -1,0 +1,188 @@
+@{
+    ViewData["Title"] = "Login";
+}
+
+<style>
+    /* ซ่อน Navbar และ Footer */
+    nav, footer { display: none !important; }
+
+    body {
+        background-color: #ffffff;
+        font-family: 'Inter', 'Kanit', sans-serif;
+        margin: 0;
+        overflow-x: hidden;
+    }
+
+    .split-screen {
+        display: flex;
+        min-height: 100vh;
+        width: 100%;
+    }
+
+    /* ฝั่งซ้าย: โลโก้ */
+    .left-side {
+        flex: 1.1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: #fcfcfc;
+        border-right: 1px solid #f0f0f0;
+        padding: 60px;
+    }
+
+    /* ฝั่งขวา: ฟอร์ม */
+    .right-side {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 60px;
+        background-color: #ffffff;
+    }
+
+    .brand-box {
+        text-align: center;
+        animation: fadeIn 0.8s ease-out;
+    }
+
+    .brand-icon-big {
+        font-size: 5.5rem;
+        color: #4a7c44;
+        margin-bottom: 20px;
+        filter: drop-shadow(0 10px 15px rgba(74, 124, 68, 0.1));
+    }
+
+    .brand-name-big {
+        font-weight: 800;
+        font-size: 2.8rem;
+        letter-spacing: -1.5px;
+        color: #1a1a1a;
+        margin-bottom: 0.5rem;
+    }
+
+    .brand-name-big span { color: #4a7c44; }
+
+    /* Container ของฟอร์ม Login */
+    .login-form-container {
+        width: 100%;
+        max-width: 400px;
+        animation: slideInRight 0.6s ease-out;
+    }
+
+    .login-header h2 {
+        font-weight: 800;
+        font-size: 2.2rem;
+        letter-spacing: -0.5px;
+        margin-bottom: 12px;
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #666;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .input-field {
+        width: 100%;
+        padding: 14px 20px;
+        border-radius: 14px;
+        border: 1.5px solid #eee;
+        background-color: #fafafa;
+        font-size: 1rem;
+        transition: 0.3s;
+        margin-bottom: 22px;
+    }
+
+    .input-field:focus {
+        outline: none;
+        border-color: #4a7c44;
+        background-color: #fff;
+        box-shadow: 0 0 0 4px rgba(74, 124, 68, 0.05);
+    }
+
+    .btn-login-submit {
+        width: 100%;
+        padding: 16px;
+        border-radius: 50px;
+        background-color: #1a1a1a;
+        color: #fff;
+        border: none;
+        font-weight: 700;
+        font-size: 1.1rem;
+        transition: 0.3s;
+        margin-top: 15px;
+    }
+
+    .btn-login-submit:hover {
+        background-color: #333;
+        transform: translateY(-3px);
+        box-shadow: 0 15px 30px rgba(0,0,0,0.1);
+    }
+
+    .floating-back {
+        position: fixed;
+        top: 40px;
+        left: 40px;
+        z-index: 100;
+        color: #888;
+        text-decoration: none;
+        font-weight: 600;
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        transition: 0.3s;
+    }
+
+    .floating-back:hover { color: #1a1a1a; transform: translateX(-5px); }
+
+    /* Animations */
+    @@keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
+    @@keyframes slideInRight { from { opacity: 0; transform: translateX(30px); } to { opacity: 1; transform: translateX(0); } }
+
+    @@media (max-width: 992px) {
+        .split-screen { flex-direction: column; }
+        .left-side { border-right: none; border-bottom: 1px solid #eee; padding: 80px 40px; }
+        .right-side { padding: 60px 40px; }
+    }
+</style>
+
+<a href="/" class="floating-back">
+    <i class="bi bi-arrow-left-short fs-4"></i> Back to shop
+</a>
+
+<div class="split-screen">
+    <div class="left-side">
+        <div class="brand-box">
+            <i class="bi bi-cake2-fill brand-icon-big"></i>
+            <h1 class="brand-name-big">CAKESHOP<span>.</span></h1>
+            <p class="text-muted fs-5">Premium Homemade Experience</p>
+        </div>
+    </div>
+
+    <div class="right-side">
+        <div class="login-form-container">
+            <div class="login-header">
+                <h2>Welcome Back</h2>
+                <p class="text-muted">Please enter your details to sign in.</p>
+            </div>
+
+            <form asp-action="Login" method="post">
+                <label class="form-label">Username</label>
+                <input type="text" name="username" class="input-field" placeholder="Enter your username" required />
+
+                <label class="form-label">Password</label>
+                <input type="password" name="password" class="input-field" placeholder="••••••••" required />
+
+                <button type="submit" class="btn-login-submit">Sign In</button>
+            </form>
+
+            <div class="text-center mt-4">
+                <span class="text-muted small">Don't have an account?</span> 
+                <a asp-action="Register" class="text-dark fw-bold text-decoration-none ms-1 small">Create Account</a>
+            </div>
+        </div>
+    </div>
+</div>

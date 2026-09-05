@@ -1,0 +1,214 @@
+@using Project_CakeShop_66095681.Models.Db
+@model Product
+
+@{
+    ViewData["Title"] = Model.CakeName;
+    double finalPrice = Model.Price - (Model.DiscountAmount ?? 0);
+    bool inStock = Model.StockQty > 0;
+    string stockClass = Model.StockQty > 10 ? "text-success" : Model.StockQty > 0 ? "text-warning" : "text-danger";
+    string stockText = Model.StockQty > 10 ? "มีสินค้า" : Model.StockQty > 0 ? "สินค้าเหลือน้อย" : "สินค้าหมด";
+}
+
+<style>
+    :root { --bakery-green: #198754; --bakery-dark: #1a1a1a; }
+    body { background: #fff; font-family: 'Kanit', sans-serif; }
+
+    .detail-container { max-width: 1000px; margin: 40px auto; padding: 0 20px; }
+
+    .product-image-box {
+        border-radius: 30px;
+        overflow: hidden;
+        background: #f9f9f9;
+        border: 1px solid #f0f0f0;
+    }
+
+    .product-image-box img {
+        width: 100%;
+        height: 450px;
+        object-fit: cover;
+    }
+
+    .detail-card {
+        background: #fafafa;
+        border-radius: 24px;
+        padding: 35px;
+        border: 1px solid #f0f0f0;
+        height: 100%;
+    }
+
+    .info-row {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        padding: 14px 0;
+        border-bottom: 1px solid #f0f0f0;
+    }
+
+    .info-row:last-child { border-bottom: none; }
+
+    .info-label { color: #888; font-size: 0.9rem; font-weight: 500; }
+    .info-value { font-weight: 700; font-size: 0.95rem; }
+
+    .stock-badge {
+        padding: 6px 16px;
+        border-radius: 50px;
+        font-size: 0.8rem;
+        font-weight: 700;
+    }
+
+    .stock-in { background: #d1fae5; color: #065f46; }
+    .stock-low { background: #fef3c7; color: #92400e; }
+    .stock-out { background: #fee2e2; color: #991b1b; }
+
+    .price-main {
+        font-size: 2.5rem;
+        font-weight: 800;
+        color: var(--bakery-green);
+        line-height: 1;
+    }
+
+    .price-original {
+        text-decoration: line-through;
+        color: #bbb;
+        font-size: 1.2rem;
+    }
+
+    .discount-tag {
+        background: #dc3545;
+        color: white;
+        padding: 4px 14px;
+        border-radius: 50px;
+        font-size: 0.75rem;
+        font-weight: 700;
+    }
+
+    .btn-add-cart {
+        background: var(--bakery-dark);
+        color: white;
+        border: none;
+        border-radius: 50px;
+        padding: 16px 40px;
+        font-weight: 700;
+        font-size: 1rem;
+        width: 100%;
+        transition: 0.3s;
+    }
+
+    .btn-add-cart:hover { background: var(--bakery-green); transform: translateY(-2px); }
+
+    .btn-add-cart:disabled { background: #ccc; cursor: not-allowed; }
+</style>
+
+<div class="detail-container">
+    <a asp-action="ProductCustomer" class="text-muted text-decoration-none small d-inline-block mb-4">
+        <i class="bi bi-chevron-left"></i> กลับไปหน้าสินค้าทั้งหมด
+    </a>
+
+    <div class="row g-4">
+        <!-- รูปสินค้า -->
+        <div class="col-lg-6">
+            <div class="product-image-box shadow-sm">
+                <img src="@(string.IsNullOrEmpty(Model.ProductImage) ? "/images/no-image.jpg" : Model.ProductImage)"
+                     alt="@Model.CakeName" />
+            </div>
+            @if (Model.DiscountAmount > 0)
+            {
+                <div class="mt-3 text-center">
+                    <span class="discount-tag"><i class="bi bi-tag-fill me-1"></i>SPECIAL OFFER</span>
+                </div>
+            }
+        </div>
+
+        <!-- ข้อมูลสินค้า -->
+        <div class="col-lg-6">
+            <div class="detail-card">
+                <h1 class="fw-bold mb-2" style="font-size: 1.8rem; letter-spacing: -0.5px;">@Model.CakeName</h1>
+                <p class="text-muted small mb-4">รหัสสินค้า: #@Model.ProductId</p>
+
+                <!-- ราคา -->
+                <div class="mb-4 pb-3 border-bottom">
+                    @if (Model.DiscountAmount > 0)
+                    {
+                        <span class="price-original">฿@Model.Price.ToString("N0")</span>
+                        <br />
+                        <span class="price-main">฿@finalPrice.ToString("N0")</span>
+                        <span class="ms-2 text-danger fw-bold small">ประหยัด ฿@Model.DiscountAmount?.ToString("N0")</span>
+                    }
+                    else
+                    {
+                        <span class="price-main">฿@Model.Price.ToString("N0")</span>
+                    }
+                </div>
+
+                <!-- รายละเอียดสินค้า -->
+                <div class="mb-4">
+                    <div class="info-row">
+                        <span class="info-label"><i class="bi bi-box-seam me-2"></i>สถานะสต็อก</span>
+                        <span>
+                            @{
+                                var badgeClass = Model.StockQty > 10 ? "stock-in" : Model.StockQty > 0 ? "stock-low" : "stock-out";
+                            }
+                            <span class="stock-badge @badgeClass">@stockText</span>
+                        </span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="info-label"><i class="bi bi-archive me-2"></i>จำนวนคงเหลือ</span>
+                        <span class="info-value @stockClass">@Model.StockQty ชิ้น</span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="info-label"><i class="bi bi-calendar-event me-2"></i>วันหมดอายุ</span>
+                        <span class="info-value">
+                            @if (Model.ExpiryDate.HasValue)
+                            {
+                                var daysLeft = (Model.ExpiryDate.Value.ToDateTime(TimeOnly.MinValue) - DateTime.Today).Days;
+                                <span class="@(daysLeft <= 3 ? "text-danger" : daysLeft <= 7 ? "text-warning" : "")">
+                                    @Model.ExpiryDate.Value.ToString("dd MMM yyyy")
+                                    @if (daysLeft <= 7)
+                                    {
+                                        <small class="d-block text-danger">( เหลืออีก @daysLeft วัน )</small>
+                                    }
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted">ไม่ระบุ</span>
+                            }
+                        </span>
+                    </div>
+
+                    <div class="info-row">
+                        <span class="info-label"><i class="bi bi-truck me-2"></i>ค่าจัดส่ง</span>
+                        <span class="info-value">
+                            <span class="text-success">ฟรี เมื่อสั่ง 299 บาทขึ้นไป</span>
+                        </span>
+                    </div>
+                </div>
+
+                <!-- ปุ่ม Add to Cart -->
+                @if (inStock)
+                {
+                    <form asp-action="AddToCart" method="post">
+                        <input type="hidden" name="productId" value="@Model.ProductId" />
+                        <button type="submit" class="btn-add-cart">
+                            <i class="bi bi-cart-plus me-2"></i> เพิ่มลงตะกร้า
+                        </button>
+                    </form>
+                }
+                else
+                {
+                    <button class="btn-add-cart" disabled>
+                        <i class="bi bi-x-circle me-2"></i> สินค้าหมด
+                    </button>
+                }
+
+                <p class="text-muted text-center small mt-3 mb-0">
+                    <i class="bi bi-shield-check me-1"></i> สินค้าอบสดใหม่ทุกวัน รับประกันคุณภาพ
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="py-5"></div>

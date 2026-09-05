@@ -1,0 +1,314 @@
+@model IEnumerable<Project_CakeShop_66095681.Models.Db.Order>
+
+@{
+    ViewData["Title"] = "แผงควบคุมผู้ดูแลระบบ";
+}
+
+<style>
+    body { font-family: 'Kanit', sans-serif; background-color: #f0f2f5; color: #444; }
+
+    .dashboard-header {
+        background: white; padding: 2rem; border-radius: 20px;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 2rem;
+    }
+
+    .stat-card {
+        border: none; border-radius: 20px;
+        transition: transform 0.3s ease, box-shadow 0.3s ease;
+        position: relative; overflow: hidden; color: white;
+    }
+    .stat-card:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.12); }
+    .stat-label  { font-size: 0.9rem; opacity: 0.9; font-weight: 300; }
+    .stat-value  { font-size: 1.8rem; font-weight: 700; margin: 5px 0; }
+    .stat-icon   { position: absolute; right: 15px; top: 50%; transform: translateY(-50%); font-size: 3.5rem; opacity: 0.2; }
+
+    .bg-grad-sales  { background: linear-gradient(135deg, #FF6B6B, #EE5253); }
+    .bg-grad-orders { background: linear-gradient(135deg, #4834d4, #686de0); }
+    .bg-grad-users  { background: linear-gradient(135deg, #20bf6b, #0fb9b1); }
+    .bg-grad-cakes  { background: linear-gradient(135deg, #f0932b, #ffbe76); }
+
+    .main-content-card {
+        background: white; border-radius: 20px; padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02);
+    }
+
+    .chart-card {
+        background: white; border-radius: 20px; padding: 1.5rem;
+        box-shadow: 0 4px 15px rgba(0,0,0,0.02); margin-bottom: 1.5rem;
+    }
+
+    .table thead th {
+        background: #f8f9fa; border: none; color: #888;
+        font-weight: 600; text-transform: uppercase;
+        font-size: 0.75rem; padding: 15px;
+    }
+    .table tbody td   { padding: 14px 15px; vertical-align: middle; }
+    .table tbody tr   { border-bottom: 1px solid #f5f5f5; }
+    .table tbody tr:last-child { border-bottom: none; }
+
+    .order-id-badge {
+        background: #f1f3f9; color: #4834d4;
+        font-weight: 700; padding: 4px 10px; border-radius: 6px;
+    }
+
+    /* ✅ Status Pills ครบ 3 แบบ */
+    .status-pill      { padding: 5px 14px; border-radius: 50px; font-size: 0.75rem; font-weight: 600; display: inline-block; }
+    .status-completed { background: #d1fae5; color: #065f46; }
+    .status-pending   { background: #fef3c7; color: #92400e; }
+    .status-cancelled { background: #fee2e2; color: #991b1b; }
+    .status-other     { background: #f1f5f9; color: #475569; }
+
+    /* ✅ Walk-in badge */
+    .customer-walkin {
+        background: #ede9fe; color: #6d28d9;
+        font-size: 0.72rem; font-weight: 700;
+        padding: 3px 10px; border-radius: 20px;
+        display: inline-block;
+    }
+
+    .quick-action-btn {
+        border: 1px solid #eee; background: white; padding: 15px;
+        border-radius: 15px; text-align: center; text-decoration: none;
+        color: #555; transition: 0.2s; display: block;
+    }
+    .quick-action-btn:hover { color: #0ea5e9; border-color: #0ea5e9; }
+    .quick-action-btn i { font-size: 1.5rem; display: block; margin-bottom: 5px; }
+</style>
+
+<div class="container py-4">
+
+    <!-- Header -->
+    <div class="dashboard-header d-flex justify-content-between align-items-center">
+        <div>
+            <h2 class="fw-bold mb-1">Admin Overview 🍰</h2>
+            <p class="text-muted mb-0">สรุปภาพรวมร้านเค้กของคุณในวันนี้</p>
+        </div>
+        <div class="text-md-end">
+            <div class="d-inline-flex align-items-center bg-white shadow-sm px-4 py-2 rounded-pill" style="border:1px solid #eee;">
+                <i class="bi bi-clock-fill text-primary me-2"></i>
+                <span id="digital-clock" class="fw-bold text-dark">@DateTime.Now.ToString("HH:mm")</span>
+                <span class="mx-2 text-muted">|</span>
+                <span class="small text-muted">@DateTime.Now.ToString("dd MMM yyyy")</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Stat Cards -->
+    <div class="row g-4 mb-4">
+        <div class="col-md-3">
+            <div class="card stat-card bg-grad-sales p-3">
+                <div class="stat-label">ยอดขายทั้งหมด</div>
+                <div class="stat-value">฿@ViewBag.TotalSales.ToString("N2")</div>
+                <i class="bi bi-cash-stack stat-icon"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-grad-orders p-3">
+                <div class="stat-label">คำสั่งซื้อสะสม</div>
+                <div class="stat-value">@ViewBag.OrderCount รายการ</div>
+                <i class="bi bi-bag-check stat-icon"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-grad-users p-3">
+                <div class="stat-label">สมาชิกทั้งหมด</div>
+                <div class="stat-value">@ViewBag.UserCount ท่าน</div>
+                <i class="bi bi-person-heart stat-icon"></i>
+            </div>
+        </div>
+        <div class="col-md-3">
+            <div class="card stat-card bg-grad-cakes p-3">
+                <div class="stat-label">เมนูเค้กในร้าน</div>
+                <div class="stat-value">@ViewBag.ProductCount ชนิด</div>
+                <i class="bi bi-cake2 stat-icon"></i>
+            </div>
+        </div>
+    </div>
+
+    <!-- ✅ Chart ยอดขาย 7 วัน -->
+    <div class="chart-card">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h5 class="fw-bold mb-0">📈 ยอดขาย 7 วันย้อนหลัง</h5>
+            <span class="small text-muted">หน่วย: บาท (฿)</span>
+        </div>
+        <canvas id="salesChart" height="80"></canvas>
+    </div>
+
+    <!-- Table + Quick Actions -->
+    <div class="row g-4">
+        <div class="col-lg-9">
+            <div class="main-content-card h-100">
+                <div class="d-flex justify-content-between align-items-center mb-4">
+                    <h5 class="fw-bold mb-0">รายการซื้อล่าสุด</h5>
+                    <a asp-action="ManageOrders" class="btn btn-sm btn-light rounded-pill px-3">ดูทั้งหมด →</a>
+                </div>
+                <div class="table-responsive">
+                    <table class="table align-middle">
+                        <thead>
+                            <tr>
+                                <th>รหัสออเดอร์</th>
+                                <th>ลูกค้า</th>
+                                <th>วันที่-เวลา</th>
+                                <th>ยอดสุทธิ</th>
+                                <th class="text-center">สถานะ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var order in Model)
+                            {
+                                @* ✅ แก้คอลัมน์ลูกค้า: ถ้า User เป็น null = หน้าร้าน *@
+                                var isWalkin = order.User == null;
+                                var customerName  = isWalkin ? "หน้าร้าน" : (order.User!.Username ?? "-");
+                                var customerEmail = isWalkin ? "Walk-in Customer" : (order.User.Email ?? "");
+
+                                @* ✅ Status ครอบคลุมทุก case รวม "Paid" (ข้อมูลเก่า) *@
+                                var pillClass = order.OrderStatus switch
+                                {
+                                    "Completed" or "Paid" => "status-completed",
+                                    "Pending"             => "status-pending",
+                                    "Cancelled"           => "status-cancelled",
+                                    _                     => "status-other"
+                                };
+                                var pillText = order.OrderStatus switch
+                                {
+                                    "Completed" or "Paid" => "✅ สำเร็จ",
+                                    "Pending"             => "⏳ รอดำเนินการ",
+                                    "Cancelled"           => "❌ ยกเลิก",
+                                    _                     => order.OrderStatus ?? "-"
+                                };
+
+                                <tr>
+                                    <td><span class="order-id-badge">#@order.OrderId</span></td>
+                                    <td>
+                                        @if (isWalkin)
+                                        {
+                                            <span class="customer-walkin"><i class="bi bi-shop me-1"></i>@customerName</span>
+                                        }
+                                        else
+                                        {
+                                            <div class="fw-bold">@customerName</div>
+                                            <small class="text-muted">@customerEmail</small>
+                                        }
+                                    </td>
+                                    <td class="small text-muted">@order.OrderDate?.ToString("dd/MM/yyyy HH:mm")</td>
+                                    <td class="fw-bold text-danger">฿@order.TotalPrice.ToString("N2")</td>
+                                    <td class="text-center">
+                                        <span class="status-pill @pillClass">@pillText</span>
+                                    </td>
+                                </tr>
+                            }
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3">
+            <div class="main-content-card">
+                <h5 class="fw-bold mb-4">เมนูจัดการด่วน</h5>
+                <div class="row g-3">
+                    <div class="col-6 col-lg-12">
+                        <a asp-action="CreateProduct" class="quick-action-btn">
+                            <i class="bi bi-plus-circle text-primary"></i>
+                            <span>เพิ่มเค้กใหม่</span>
+                        </a>
+                    </div>
+                    <div class="col-6 col-lg-12">
+                        <a asp-action="ManageProduct" class="quick-action-btn">
+                            <i class="bi bi-grid-3x3-gap text-success"></i>
+                            <span>คลังสินค้า</span>
+                        </a>
+                    </div>
+                    <div class="col-6 col-lg-12">
+                        <a asp-action="ManageOrders" class="quick-action-btn">
+                            <i class="bi bi-receipt text-warning"></i>
+                            <span>ออเดอร์</span>
+                        </a>
+                    </div>
+                    <div class="col-6 col-lg-12">
+                        <a asp-action="ManageUsers" class="quick-action-btn">
+                            <i class="bi bi-people text-info"></i>
+                            <span>สมาชิก</span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- ✅ Chart.js + DataLabels plugin -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-datalabels@2.2.0/dist/chartjs-plugin-datalabels.min.js"></script>
+<script>
+    // ลงทะเบียน plugin
+    Chart.register(ChartDataLabels);
+
+    // นาฬิกา
+    setInterval(() => {
+        const el = document.getElementById('digital-clock');
+        if (el) {
+            const n = new Date();
+            el.innerText = n.getHours().toString().padStart(2,'0') + ':' + n.getMinutes().toString().padStart(2,'0');
+        }
+    }, 1000);
+
+    // โหลดข้อมูล Chart จาก Controller
+    fetch('/Admin/GetSalesLast7Days')
+        .then(r => r.json())
+        .then(data => {
+            new Chart(document.getElementById('salesChart'), {
+                type: 'bar',
+                data: {
+                    labels: data.map(d => d.label),
+                    datasets: [{
+                        label: 'ยอดขาย (฿)',
+                        data: data.map(d => d.total),
+                        backgroundColor: 'rgba(99,102,241,0.12)',
+                        borderColor: '#6366f1',
+                        borderWidth: 2,
+                        borderRadius: 10,
+                        borderSkipped: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    plugins: {
+                        legend: { display: false },
+                        tooltip: {
+                            callbacks: { label: ctx => ' ฿' + ctx.parsed.y.toLocaleString() }
+                        },
+                        // ✅ แสดงตัวเลขบนแท่ง
+                        datalabels: {
+                            anchor: 'end',
+                            align: 'end',
+                            offset: 4,
+                            formatter: v => v > 0 ? '฿' + v.toLocaleString() : '',
+                            font: { family: 'Kanit', size: 12, weight: '700' },
+                            color: '#6366f1',
+                        }
+                    },
+                    scales: {
+                        x: {
+                            grid: { display: false },
+                            ticks: { font: { family: 'Kanit', size: 12 } }
+                        },
+                        y: {
+                            beginAtZero: true,
+                            grid: { color: '#f1f5f9' },
+                            // เพิ่ม padding บนสุดให้ label ไม่ถูกตัด
+                            grace: '15%',
+                            ticks: {
+                                font: { family: 'Kanit', size: 11 },
+                                callback: v => '฿' + v.toLocaleString()
+                            }
+                        }
+                    }
+                }
+            });
+        })
+        .catch(() => {
+            const card = document.getElementById('salesChart').closest('.chart-card');
+            if (card) card.innerHTML = '<p class="text-center text-muted py-3 mb-0">ไม่สามารถโหลดข้อมูลกราฟได้</p>';
+        });
+</script>

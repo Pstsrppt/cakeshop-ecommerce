@@ -1,0 +1,334 @@
+@model IEnumerable<Project_CakeShop_66095681.Models.Db.Product>
+@using Project_CakeShop_66095681.Models.Db
+@{
+    ViewData["Title"] = "ยินดีต้อนรับสู่ร้านเค้กของเรา";
+    var promos = ViewBag.Promotions as List<Promotion>;
+}
+
+<style>
+    body { font-family: 'Kanit', sans-serif; background: #fff; color: #1a1a1a; overflow-x: hidden; }
+
+    /* ===== HERO ===== */
+    .hero {
+        background: linear-gradient(135deg, #f8fdfa 0%, #f0fdf4 50%, #fff9fb 100%);
+        padding: 100px 0 140px; position: relative; overflow: hidden;
+    }
+    .hero::before {
+        content: '🍰'; position: absolute; right: 8%; top: 50%;
+        transform: translateY(-50%); font-size: 14rem; opacity: 0.07;
+        pointer-events: none; animation: float 6s ease-in-out infinite;
+    }
+    @@keyframes float {
+        0%,100% { transform: translateY(-50%) rotate(-5deg); }
+        50%      { transform: translateY(-58%) rotate(5deg); }
+    }
+    .hero-badge {
+        display: inline-flex; align-items: center; gap: 6px;
+        background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0;
+        border-radius: 50px; padding: 6px 18px;
+        font-size: 0.82rem; font-weight: 700; margin-bottom: 24px;
+    }
+    .hero h1 {
+        font-size: clamp(2.4rem, 5vw, 4rem);
+        font-weight: 800; line-height: 1.1; color: #1a1a1a; margin-bottom: 20px;
+    }
+    .hero p { font-size: 1.05rem; color: #64748b; max-width: 480px; }
+    .btn-hero {
+        background: #1a1a1a; color: #fff; padding: 14px 36px; border-radius: 50px;
+        font-weight: 700; font-size: 1rem; text-decoration: none;
+        display: inline-flex; align-items: center; gap: 8px; transition: 0.3s;
+        box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+    }
+    .btn-hero:hover { background: #198754; color: #fff; transform: translateY(-3px); }
+    .btn-hero-outline {
+        background: transparent; color: #1a1a1a; padding: 14px 36px;
+        border-radius: 50px; font-weight: 700; font-size: 1rem;
+        text-decoration: none; display: inline-flex; align-items: center; gap: 8px;
+        transition: 0.3s; border: 2px solid #e2e8f0;
+    }
+    .btn-hero-outline:hover { border-color: #1a1a1a; color: #1a1a1a; }
+
+    /* ===== SERVICE ===== */
+    .service-float { margin-top: -56px; position: relative; z-index: 10; }
+    .service-card {
+        background: #fff; border-radius: 20px; padding: 28px 20px; text-align: center;
+        border: 1px solid #f1f5f9; box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+        height: 100%; transition: 0.3s;
+    }
+    .service-card:hover { transform: translateY(-6px); box-shadow: 0 20px 40px rgba(0,0,0,0.08); }
+    .service-icon { font-size: 2.2rem; margin-bottom: 12px; display: block; }
+    .service-card h6 { font-weight: 700; margin-bottom: 4px; font-size: 0.95rem; }
+    .service-card p  { font-size: 0.78rem; color: #94a3b8; margin: 0; }
+
+    /* ===== SECTION TITLE ===== */
+    .section-title {
+        font-weight: 800; font-size: 1.8rem; color: #1a1a1a;
+        position: relative; display: inline-block; margin-bottom: 8px;
+    }
+    .section-title::after {
+        content: ''; position: absolute; bottom: -8px; left: 0;
+        width: 48px; height: 4px; background: #198754; border-radius: 2px;
+    }
+
+    /* ===== PROMO ===== */
+    .promo-card {
+        background: linear-gradient(135deg, #fffbeb, #fef3c7);
+        border: 1px solid #fde68a; border-radius: 20px;
+        padding: 24px; height: 100%; transition: 0.3s; position: relative; overflow: hidden;
+    }
+    .promo-card::before {
+        content: ''; position: absolute; top: -20px; right: -20px;
+        width: 80px; height: 80px; background: rgba(253,230,138,0.5); border-radius: 50%;
+    }
+    .promo-card:hover { transform: translateY(-4px); box-shadow: 0 12px 30px rgba(253,212,70,0.2); }
+    .promo-icon { font-size: 2rem; margin-bottom: 12px; display: block; }
+    .promo-desc { font-weight: 700; color: #1a1a1a; font-size: 0.95rem; margin-bottom: 10px; }
+    .promo-code-badge {
+        display: inline-block; background: #1a1a1a; color: #fde68a;
+        padding: 5px 14px; border-radius: 8px;
+        font-size: 0.82rem; font-weight: 700; letter-spacing: 1.5px; margin-bottom: 10px;
+    }
+    .promo-discount { color: #16a34a; font-weight: 700; font-size: 0.88rem; }
+    .promo-expiry   { color: #92400e; font-size: 0.75rem; margin-top: 4px; }
+
+    /* ===== PRODUCT CARD ===== */
+    .product-card {
+        background: #fff; border-radius: 20px; padding: 12px 12px 16px;
+        transition: 0.3s; border: 1px solid transparent;
+    }
+    .product-card:hover {
+        box-shadow: 0 16px 40px rgba(0,0,0,0.08);
+        border-color: #e2e8f0; transform: translateY(-4px);
+    }
+    .product-img-wrap {
+        width: 100%; aspect-ratio: 1/1; border-radius: 14px;
+        overflow: hidden; background: #f8f9fa; margin-bottom: 14px; position: relative;
+    }
+    .product-img-wrap img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+    .product-card:hover .product-img-wrap img { transform: scale(1.08); }
+    .sale-badge {
+        position: absolute; top: 10px; left: 10px;
+        background: #ef4444; color: #fff;
+        font-size: 0.7rem; font-weight: 700; padding: 3px 10px; border-radius: 6px; z-index: 5;
+    }
+    .product-name {
+        font-weight: 700; font-size: 0.9rem;
+        white-space: nowrap; overflow: hidden; text-overflow: ellipsis; margin-bottom: 6px;
+    }
+    .product-price { font-weight: 700; color: #198754; font-size: 1rem; }
+    .product-price-old { font-size: 0.78rem; color: #94a3b8; text-decoration: line-through; margin-right: 4px; }
+    .btn-cart {
+        width: 100%; border-radius: 50px; padding: 9px; border: none;
+        font-weight: 700; font-size: 0.82rem; background: #1a1a1a; color: #fff;
+        transition: 0.3s; cursor: pointer; font-family: 'Kanit', sans-serif;
+    }
+    .btn-cart:hover { background: #198754; }
+
+    /* ===== CATEGORY ===== */
+    .category-card { position: relative; border-radius: 20px; overflow: hidden; height: 200px; cursor: pointer; }
+    .category-card img { width: 100%; height: 100%; object-fit: cover; transition: 0.5s; }
+    .category-card:hover img { transform: scale(1.08); }
+    .category-overlay {
+        position: absolute; inset: 0;
+        background: linear-gradient(to top, rgba(0,0,0,0.55), transparent);
+        display: flex; align-items: flex-end; padding: 20px;
+    }
+    .category-overlay h5 { color: #fff; font-weight: 700; margin: 0; font-size: 1.1rem; }
+
+    .section-sm { padding: 50px 0; }
+</style>
+
+<!-- HERO -->
+<section class="hero">
+    <div class="container">
+        <div class="row align-items-center">
+            <div class="col-lg-7">
+                <div class="hero-badge"><i class="bi bi-stars"></i> Premium Homemade Quality</div>
+                <h1>Delicious Cakes<br><span class="text-success">Baked with Love</span></h1>
+                <p class="mb-4">สัมผัสรสชาติเค้กโฮมเมดระดับพรีเมียม อบสดใหม่ทุกวันเพื่อคุณ ด้วยวัตถุดิบคุณภาพสูงนำเข้าจากต่างประเทศ</p>
+                <div class="d-flex gap-3 flex-wrap">
+                    <a href="#featured-products" class="btn-hero">
+                        <i class="bi bi-bag-heart-fill"></i> สั่งซื้อเลยตอนนี้
+                    </a>
+                    <a asp-controller="User" asp-action="ProductCustomer" class="btn-hero-outline">
+                        ดูเมนูทั้งหมด <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<div class="container">
+
+    <!-- SERVICE BAR -->
+    <div class="row g-3 service-float mb-5">
+        <div class="col-6 col-md-3">
+            <div class="service-card shadow-sm">
+                <span class="service-icon">🚚</span>
+                <h6>ส่งด่วนใน 2 ชม.</h6>
+                <p>เฉพาะเขตกรุงเทพฯ</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="service-card shadow-sm">
+                <span class="service-icon">⏰</span>
+                <h6>อบสดใหม่ทุกวัน</h6>
+                <p>ไม่มีของค้างคืน</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="service-card shadow-sm">
+                <span class="service-icon">🧈</span>
+                <h6>เนยแท้ 100%</h6>
+                <p>นำเข้าจากต่างประเทศ</p>
+            </div>
+        </div>
+        <div class="col-6 col-md-3">
+            <div class="service-card shadow-sm">
+                <span class="service-icon">✅</span>
+                <h6>สะอาด ปลอดภัย</h6>
+                <p>มาตรฐาน Food Grade</p>
+            </div>
+        </div>
+    </div>
+
+    <!-- PROMOTIONS -->
+    @if (promos != null && promos.Any())
+    {
+        <div class="section-sm">
+            <div class="d-flex justify-content-between align-items-end mb-5">
+                <div>
+                    <h2 class="section-title">โปรโมชันพิเศษ</h2>
+                    <p class="text-muted small mt-3 mb-0">ข้อเสนอสุดคุ้มที่ไม่ควรพลาด</p>
+                </div>
+            </div>
+            <div class="row g-3">
+                @foreach (var promo in promos)
+                {
+                    <div class="col-md-4 col-sm-6">
+                        <div class="promo-card">
+                            <span class="promo-icon">🏷️</span>
+                            <div class="promo-desc">@promo.Description</div>
+                            <div><span class="promo-code-badge">@promo.PromoCode</span></div>
+                            @if (promo.DiscountPercent > 0)
+                            {
+                                <div class="promo-discount"><i class="bi bi-tag-fill me-1"></i>ลด @promo.DiscountPercent%</div>
+                            }
+                            @if (promo.EndDate.HasValue)
+                            {
+                                <div class="promo-expiry"><i class="bi bi-clock me-1"></i>หมดอายุ @promo.EndDate.Value.ToString("dd/MM/yyyy")</div>
+                            }
+                        </div>
+                    </div>
+                }
+            </div>
+        </div>
+    }
+
+    <!-- FEATURED PRODUCTS -->
+    <div id="featured-products" class="section-sm">
+        <div class="d-flex justify-content-between align-items-end mb-5">
+            <div>
+                <h2 class="section-title">เมนูแนะนำ</h2>
+                <p class="text-muted small mt-3 mb-0">คัดสรรเมนูขายดีที่สุดมาเพื่อคุณ</p>
+            </div>
+            <a asp-controller="User" asp-action="ProductCustomer"
+               class="btn btn-outline-dark rounded-pill px-4 fw-bold btn-sm">
+                ดูทั้งหมด <i class="bi bi-arrow-right ms-1"></i>
+            </a>
+        </div>
+        <div class="row g-4">
+            @if (Model != null && Model.Any())
+            {
+                @foreach (var item in Model)
+                {
+                    string imgSrc = string.IsNullOrEmpty(item.ProductImage) ? "/images/no-image.png"
+                                  : item.ProductImage.StartsWith("/") ? item.ProductImage
+                                  : "/" + item.ProductImage;
+                    <div class="col-6 col-md-3">
+                        <div class="product-card">
+                            <div class="product-img-wrap">
+                                @if (item.DiscountAmount > 0)
+                                { <span class="sale-badge">Sale!</span> }
+                                <img src="@imgSrc" alt="@item.CakeName" onerror="this.src='/images/no-image.png'">
+                            </div>
+                            <div class="text-center px-1">
+                                <div class="product-name" title="@item.CakeName">@item.CakeName</div>
+                                <div class="mb-3">
+                                    @if (item.DiscountAmount > 0)
+                                    {
+                                        <span class="product-price-old">฿@item.Price.ToString("N0")</span>
+                                        <span class="product-price text-danger">฿@((item.Price - (item.DiscountAmount ?? 0)).ToString("N0"))</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="product-price">฿@item.Price.ToString("N0")</span>
+                                    }
+                                </div>
+                                @if (item.StockQty > 0)
+                                {
+                                    <form asp-controller="User" asp-action="AddToCart" method="post">
+                                        <input type="hidden" name="productId" value="@item.ProductId" />
+                                        <button type="submit" class="btn-cart">
+                                            <i class="bi bi-bag-plus me-1"></i> Add to Cart
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <button class="btn-cart" disabled style="background:#e2e8f0;color:#94a3b8;cursor:not-allowed;">
+                                        Out of Stock
+                                    </button>
+                                }
+                            </div>
+                        </div>
+                    </div>
+                }
+            }
+            else
+            {
+                <div class="col-12 text-center py-5 text-muted">
+                    <i class="bi bi-inbox display-4 d-block mb-3 opacity-25"></i>
+                    ยังไม่มีสินค้าในขณะนี้
+                </div>
+            }
+        </div>
+    </div>
+
+    <!-- CATEGORY -->
+    <div class="section-sm">
+        <div class="mb-5">
+            <h2 class="section-title">ค้นหาตามประเภท</h2>
+            <p class="text-muted small mt-3 mb-0">เลือกหมวดหมู่เค้กที่คุณต้องการ</p>
+        </div>
+        <div class="row g-4">
+            <div class="col-md-4">
+                <a asp-controller="User" asp-action="ProductCustomer" class="text-decoration-none">
+                    <div class="category-card shadow-sm">
+                        <img src="https://images.unsplash.com/photo-1578985545062-69928b1d9587?w=600" alt="Birthday">
+                        <div class="category-overlay"><h5>🎂 เค้กวันเกิด</h5></div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a asp-controller="User" asp-action="ProductCustomer" class="text-decoration-none">
+                    <div class="category-card shadow-sm">
+                        <img src="https://images.unsplash.com/photo-1606890737304-57a1ca8a5b62?w=600" alt="Chocolate">
+                        <div class="category-overlay"><h5>🍫 เค้กช็อกโกแลต</h5></div>
+                    </div>
+                </a>
+            </div>
+            <div class="col-md-4">
+                <a asp-controller="User" asp-action="ProductCustomer" class="text-decoration-none">
+                    <div class="category-card shadow-sm">
+                        <img src="https://images.unsplash.com/photo-1565958011703-44f9829ba187?w=600" alt="Fruit">
+                        <div class="category-overlay"><h5>🍓 เค้กผลไม้</h5></div>
+                    </div>
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="py-4"></div>
+</div>

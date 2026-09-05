@@ -1,0 +1,316 @@
+@using Project_CakeShop_66095681.Models
+@model IEnumerable<CartItem>
+
+@{
+    ViewData["Title"] = "ตะกร้าสินค้าของฉัน";
+
+    double subTotal = Model?.Sum(x => x.Total) ?? 0;
+    int totalQuantity = Model?.Sum(x => x.Quantity) ?? 0;
+
+    // ดึงส่วนลดโปรโมโค้ดจาก Session (Flash Sale, NEWCUSTOMER)
+    double promoDiscount = 0;
+    string appliedPromoCode = Context.Session.GetString("PromoCode") ?? "";
+    string promoMessage = Context.Session.GetString("PromoMessage") ?? "";
+    var promoDiscStr = Context.Session.GetString("PromoDiscount");
+    if (!string.IsNullOrEmpty(promoDiscStr)) double.TryParse(promoDiscStr, out promoDiscount);
+
+    // ✅ โปรโมชันอัตโนมัติ (ทำงานพร้อมกับโปรโมโค้ดได้เลย)
+
+    // โปรโมชัน 1: ซื้อ 10 ชิ้นขึ้นไป ลด 10%
+    double autoBuy10Discount = 0;
+    if (totalQuantity >= 10)
+        autoBuy10Discount = subTotal * 0.10;
+
+    // โปรโมชัน 2: ซื้อ 6 ชิ้นขึ้นไป แถม 1 (ฟรีราคาสินค้าที่ถูกที่สุด 1 ชิ้น)
+    double autoBuy6Discount = 0;
+    if (totalQuantity >= 6 && Model != null && Model.Any())
+        autoBuy6Discount = Model.Min(x => x.Price);
+
+    // โปรโมชัน 3: ส่งฟรีเมื่อซื้อครบ 299 บาท
+    bool freeShipping = subTotal >= 299;
+
+    double totalDiscount = autoBuy10Discount + autoBuy6Discount + promoDiscount;
+    double grandTotal = subTotal - totalDiscount;
+    if (grandTotal < 0) grandTotal = 0;
+}
+
+<style>
+    :root { --bakery-green: #198754; --bakery-dark: #1a1a1a; --bakery-bg: #f8fdfa; }
+    body { background-color: #ffffff; font-family: 'Kanit', 'Inter', sans-serif; }
+
+    .cart-container { max-width: 1100px; margin: 40px auto; padding: 0 20px; }
+
+    .cart-list-section {
+        background: #fff; border-radius: 30px;
+        padding: 30px; border: 1px solid #f0f0f0;
+    }
+
+    .cart-item {
+        border-bottom: 1px solid #f5f5f5;
+        padding: 20px 0; display: flex; align-items: center;
+    }
+
+    .cart-item:last-child { border-bottom: none; }
+
+    .item-img {
+        width: 100px; height: 100px;
+        border-radius: 20px; object-fit: cover; border: 1px solid #f0f0f0;
+    }
+
+    .summary-card {
+        background: var(--bakery-bg); border-radius: 30px;
+        padding: 30px; border: 1px solid rgba(25,135,84,0.1);
+        position: sticky; top: 100px;
+    }
+
+    .promo-box {
+        background: #fff; border-radius: 15px;
+        padding: 5px 5px 5px 15px; display: flex;
+        align-items: center; border: 1px solid #e0e0e0; margin-bottom: 10px;
+    }
+
+    .promo-box input {
+        border: none; outline: none; flex-grow: 1;
+        font-size: 0.9rem; background: transparent; font-family: 'Kanit', sans-serif;
+    }
+
+    .btn-apply {
+        background: var(--bakery-dark); color: white; border: none;
+        border-radius: 12px; padding: 8px 20px; font-weight: 600; transition: 0.3s;
+    }
+
+    .btn-apply:hover { background: var(--bakery-green); }
+
+    .btn-checkout {
+        background: var(--bakery-dark); color: white; border: none;
+        border-radius: 50px; padding: 16px; width: 100%;
+        font-weight: 700; font-size: 1.1rem; transition: 0.3s;
+        box-shadow: 0 10px 20px rgba(0,0,0,0.05);
+    }
+
+    .btn-checkout:hover { background: var(--bakery-green); transform: translateY(-3px); }
+
+    .promo-applied {
+        background: #d1fae5; border: 1px solid #a7f3d0;
+        border-radius: 12px; padding: 10px 14px;
+        display: flex; justify-content: space-between; align-items: center;
+        margin-bottom: 12px; font-size: 0.85rem; color: #065f46; font-weight: 600;
+    }
+
+    .discount-row {
+        display: flex; justify-content: space-between;
+        margin-bottom: 6px; font-size: 0.88rem;
+    }
+
+    .auto-promo-hint {
+        background: #fffbf0; border: 1px solid #fde68a;
+        border-radius: 12px; padding: 12px 16px; margin-top: 16px;
+        font-size: 0.8rem;
+    }
+</style>
+
+<div class="container cart-container">
+    <div class="mb-4">
+        <a asp-action="ProductCustomer" class="text-muted text-decoration-none small">
+            <i class="bi bi-chevron-left"></i> กลับไปหน้าเลือกซื้อเค้ก
+        </a>
+    </div>
+
+    <h2 class="fw-bold mb-5">ตะกร้าสินค้าของฉัน<span class="text-success">.</span></h2>
+
+    @if (TempData["PromoSuccess"] != null)
+    {
+        <div class="alert alert-success alert-dismissible fade show rounded-4" role="alert">
+            @TempData["PromoSuccess"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+    @if (TempData["PromoError"] != null)
+    {
+        <div class="alert alert-danger alert-dismissible fade show rounded-4" role="alert">
+            @TempData["PromoError"]
+            <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+        </div>
+    }
+
+    @if (Model != null && Model.Any())
+    {
+        <div class="row g-4">
+            <div class="col-lg-8">
+                <div class="cart-list-section shadow-sm">
+                    @foreach (var item in Model)
+                    {
+                        <div class="cart-item d-flex align-items-center py-3 border-bottom">
+                            <img src="@(string.IsNullOrEmpty(item.ProductImage) ? "/images/no-image.png" : item.ProductImage)"
+                                 class="item-img me-4"
+                                 style="width:100px;height:100px;object-fit:cover;border-radius:15px;">
+                            <div class="flex-grow-1">
+                                <h5 class="fw-bold mb-1">@item.CakeName</h5>
+                                <p class="text-muted small mb-1">ราคาต่อชิ้น: ฿@item.Price.ToString("N0")</p>
+                                <a asp-action="RemoveFromCart" asp-route-id="@item.ProductId"
+                                   class="text-danger small text-decoration-none">
+                                    <i class="bi bi-trash me-1"></i>ลบรายการ
+                                </a>
+                            </div>
+                            <div class="text-end">
+                                <div class="d-flex align-items-center justify-content-end mb-2">
+                                    <a asp-action="DecreaseQuantity" asp-route-id="@item.ProductId"
+                                       class="btn btn-sm btn-outline-secondary rounded-circle"
+                                       style="width:32px;height:32px;padding:0;line-height:30px;">-</a>
+                                    <span class="mx-3 fw-bold" style="min-width:20px;text-align:center;">@item.Quantity</span>
+                                    <a asp-action="IncreaseQuantity" asp-route-id="@item.ProductId"
+                                       class="btn btn-sm btn-outline-success rounded-circle"
+                                       style="width:32px;height:32px;padding:0;line-height:30px;">+</a>
+                                </div>
+                                <div class="fw-bold fs-5 text-success">฿@item.Total.ToString("N0")</div>
+                            </div>
+                        </div>
+                    }
+                </div>
+
+                @* 힌트โปรโมชันอัตโนมัติ *@
+                <div class="auto-promo-hint mt-3">
+                    <div class="fw-bold mb-2">🎁 โปรโมชันที่ใช้ได้อัตโนมัติ</div>
+                    <div class="@(totalQuantity >= 6 ? "text-success fw-bold" : "text-muted")">
+                        @(totalQuantity >= 6 ? "✅" : "○") ซื้อ 6 ชิ้นขึ้นไป แถม 1 ชิ้น
+                        @if (totalQuantity < 6) { <span class="text-danger small"> (ต้องการอีก @(6 - totalQuantity) ชิ้น)</span> }
+                    </div>
+                    <div class="@(totalQuantity >= 10 ? "text-success fw-bold" : "text-muted") mt-1">
+                        @(totalQuantity >= 10 ? "✅" : "○") ซื้อ 10 ชิ้นขึ้นไป ลด 10%
+                        @if (totalQuantity < 10) { <span class="text-danger small"> (ต้องการอีก @(10 - totalQuantity) ชิ้น)</span> }
+                    </div>
+                    <div class="@(freeShipping ? "text-success fw-bold" : "text-muted") mt-1">
+                        @(freeShipping ? "✅" : "○") ซื้อครบ 299 บาท ส่งฟรี
+                        @if (!freeShipping) { <span class="text-danger small"> (ต้องการอีก ฿@((299 - subTotal).ToString("N0")))</span> }
+                    </div>
+                    <hr class="my-2">
+                    <div class="text-muted">🏷️ โปรโมโค้ดพิเศษ: <strong>FLASH20</strong> (Flash Sale ลด 20%) / <strong>NEWCUSTOMER</strong> (ลูกค้าใหม่ลด ฿20)</div>
+                </div>
+            </div>
+
+            <div class="col-lg-4">
+                <div class="summary-card shadow-sm">
+                    <h5 class="fw-bold mb-4">สรุปคำสั่งซื้อ</h5>
+
+                    @* โปรโมโค้ดพิเศษ (Flash Sale / NEWCUSTOMER) *@
+                    <label class="small fw-bold text-muted mb-2">โปรโมโค้ดพิเศษ</label>
+                    @if (!string.IsNullOrEmpty(appliedPromoCode))
+                    {
+                        <div class="promo-applied">
+                            <span><i class="bi bi-tag-fill me-2"></i>@promoMessage</span>
+                            <a asp-action="RemovePromo" class="text-danger text-decoration-none small">
+                                <i class="bi bi-x-circle"></i> ยกเลิก
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <form asp-action="ApplyPromo" method="post" class="mb-3">
+                            <div class="promo-box">
+                                <input type="text" name="promoCode" placeholder="FLASH20 / NEWCUSTOMER"
+                                       style="font-family:'Kanit',sans-serif;">
+                                <button type="submit" class="btn-apply">ใช้โค้ด</button>
+                            </div>
+                        </form>
+                    }
+
+                    <hr>
+
+                    <div class="d-flex justify-content-between mb-2">
+                        <span class="text-muted">ยอดรวมสินค้า (@totalQuantity ชิ้น)</span>
+                        <span class="fw-bold">฿@subTotal.ToString("N0")</span>
+                    </div>
+
+                    @* แสดงส่วนลดอัตโนมัติทุกตัว *@
+                    @if (autoBuy6Discount > 0)
+                    {
+                        <div class="discount-row text-danger">
+                            <span>🎁 ซื้อ 6 แถม 1 (ฟรี 1 ชิ้น)</span>
+                            <span class="fw-bold">-฿@autoBuy6Discount.ToString("N0")</span>
+                        </div>
+                    }
+
+                    @if (autoBuy10Discount > 0)
+                    {
+                        <div class="discount-row text-danger">
+                            <span>🎉 ซื้อครบ 10 ชิ้น ลด 10%</span>
+                            <span class="fw-bold">-฿@autoBuy10Discount.ToString("N0")</span>
+                        </div>
+                    }
+
+                    @if (promoDiscount > 0)
+                    {
+                        <div class="discount-row text-danger">
+                            <span>🏷️ @promoMessage</span>
+                            <span class="fw-bold">-฿@promoDiscount.ToString("N0")</span>
+                        </div>
+                    }
+
+                    <div class="d-flex justify-content-between mt-3 mb-2 py-2 border-top border-bottom">
+                        <span class="fw-bold">ยอดรวมหลังส่วนลด</span>
+                        <span class="fw-bold text-dark">฿@grandTotal.ToString("N0")</span>
+                    </div>
+
+                    <div class="d-flex justify-content-between mb-3">
+                        <span class="text-muted">ค่าจัดส่ง</span>
+                        @if (freeShipping)
+                        {
+                            <span class="fw-bold text-success">🚚 ฟรี!</span>
+                        }
+                        else
+                        {
+                            <span class="fw-bold text-success">ฟรี</span>
+                        }
+                    </div>
+
+                    <hr class="my-3">
+
+                    <div class="d-flex justify-content-between align-items-center mb-4">
+                        <div>
+                            <span class="h6 fw-bold mb-0">ยอดชำระสุทธิ</span>
+                            <small class="d-block text-muted" style="font-size:0.7rem;">(รวมภาษีมูลค่าเพิ่มแล้ว)</small>
+                        </div>
+                        <span class="h2 fw-bold mb-0" style="color:var(--bakery-green);">฿@grandTotal.ToString("N0")</span>
+                    </div>
+
+                    <form asp-action="Checkout" method="post" id="checkoutForm">
+                        <hr class="my-3">
+                        <label class="small fw-bold text-muted mb-2">
+                            <i class="bi bi-geo-alt-fill me-1 text-danger"></i>ที่อยู่จัดส่ง
+                        </label>
+                        <textarea name="shippingAddress" rows="3" class="form-control mb-3"
+                                  placeholder="กรุณาระบุที่อยู่สำหรับจัดส่ง เช่น 123 ถ.สุขุมวิท แขวงคลองเตย เขตคลองเตย กรุงเทพฯ 10110"
+                                  style="border-radius: 15px; font-family: 'Kanit', sans-serif; font-size: 0.9rem; resize: none;"
+                                  required></textarea>
+                        <div class="text-muted small mb-3">
+                            <i class="bi bi-info-circle me-1"></i> กรุณากรอกที่อยู่ให้ครบถ้วนเพื่อความสะดวกในการจัดส่ง
+                        </div>
+                        <button type="submit" class="btn-checkout py-3">
+                            ยืนยันการสั่งซื้อ <i class="bi bi-arrow-right ms-2"></i>
+                        </button>
+                    </form>
+
+                    <div class="mt-4 text-center">
+                        <p class="small text-muted mb-2">รองรับการชำระเงินผ่าน</p>
+                        <img src="~/images/promptpay-mockup.JPG" class="shadow-sm p-2 bg-white border"
+                             style="height:200px; border-radius:15px;">
+                    </div>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <div class="text-center py-5">
+            <img src="/images/empty-cart-cakeshop.png" alt="ตะกร้าว่าง"
+                 style="max-width:280px; margin-bottom:30px;">
+            <h2 class="fw-bold">ตะกร้าของคุณยังว่างอยู่</h2>
+            <p class="text-muted mb-4">เพิ่มความหวานให้ชีวิตด้วยเค้กแสนอร่อยของเราสักชิ้นสิครับ</p>
+            <a asp-action="ProductCustomer" class="btn btn-dark rounded-pill px-5 py-3 fw-bold shadow-sm">
+                เลือกซื้อเค้กเลยตอนนี้
+            </a>
+        </div>
+    }
+
+    <div class="py-5"></div>
+</div>

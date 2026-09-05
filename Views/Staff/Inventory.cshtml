@@ -1,0 +1,660 @@
+@model IEnumerable<Project_CakeShop_66095681.Models.Db.Product>
+
+@{
+    Layout = null;
+}
+
+<!DOCTYPE html>
+<html lang="th">
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Inventory Management | Cake Shop</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+                :root {
+                    --primary-gradient: linear-gradient(135deg, #6366f1 0%, #4f46e5 100%);
+                    --pos-bg: #f4f7fa;
+                }
+
+                body {
+                    font-family: 'Sarabun', sans-serif;
+                    background-color: var(--pos-bg);
+                    color: #1e293b;
+                    min-height: 100vh;
+                }
+
+                .main-content {
+                    max-width: 1250px;
+                    margin: 0 auto;
+                    padding: 2rem 1.5rem;
+                }
+
+                .btn-back-custom {
+                    background: white;
+                    color: #475569;
+                    border: 1px solid #dee2e6;
+                    border-radius: 12px;
+                    padding: 10px 20px;
+                    font-weight: 700;
+                    text-decoration: none;
+                    display: inline-flex;
+                    align-items: center;
+                    transition: all 0.3s ease;
+                    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.04);
+                }
+
+                .btn-back-custom:hover {
+                    background-color: #6366f1;
+                    color: white !important;
+                    border-color: #6366f1;
+                    transform: translateY(-2px);
+                    box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+                }
+
+                .stat-card-custom {
+                    border: none;
+                    border-radius: 20px;
+                    background: white;
+                    padding: 1.5rem;
+                    position: relative;
+                    overflow: hidden;
+                    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+                    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.04), 0 4px 6px -2px rgba(0, 0, 0, 0.02);
+                    height: 100%;
+                }
+
+                .stat-card-custom:hover {
+                    transform: translateY(-5px);
+                    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.08);
+                }
+
+                .icon-box-modern {
+                    width: 54px;
+                    height: 54px;
+                    border-radius: 16px;
+                    display: flex;
+                    align-items: center;
+                    justify-content: center;
+                    font-size: 1.5rem;
+                }
+
+                .inventory-card {
+                    border: none;
+                    border-radius: 24px;
+                    background: white;
+                    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.04);
+                    overflow: hidden;
+                }
+
+                .table thead th {
+                    background: #f8fafc;
+                    color: #64748b;
+                    font-weight: 700;
+                    text-transform: uppercase;
+                    font-size: 0.75rem;
+                    letter-spacing: 0.05em;
+                    padding: 1.25rem;
+                    border-bottom: 1px solid #f1f5f9;
+                }
+
+                .stock-input {
+                    width: 75px;
+                    border: 2px solid #f1f5f9;
+                    border-radius: 10px;
+                    text-align: center;
+                    font-weight: 700;
+                    padding: 4px;
+                    transition: all 0.2s;
+                }
+
+                .stock-input:focus {
+                    border-color: #6366f1;
+                    outline: none;
+                    background: #f5f3ff;
+                    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+                }
+
+                .btn-edit-round {
+                    color: #6366f1;
+                    background: #eeeffe;
+                    border: none;
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 10px;
+                    transition: 0.2s;
+                }
+                .btn-edit-round:hover {
+                    background: #6366f1;
+                    color: white;
+                }
+                .btn-del-round {
+                    color: #ef4444;
+                    background: #fef2f2;
+                    border: none;
+                    width: 36px;
+                    height: 36px;
+                    border-radius: 10px;
+                    transition: 0.2s;
+                }
+
+                .btn-del-round:hover {
+                    background: #ef4444;
+                    color: white;
+                }
+
+                .btn-add-new {
+                    background: var(--primary-gradient);
+                    border: none;
+                    border-radius: 12px;
+                    padding: 10px 24px;
+                    font-weight: 700;
+                    transition: all 0.3s ease;
+                }
+
+                .btn-add-new:hover {
+                    transform: translateY(-2px);
+                    box-shadow: 0 6px 15px rgba(79, 70, 229, 0.3);
+                }
+
+                /* --- Modal Styling --- */
+                .modal-content {
+                    border: none;
+                    border-radius: 24px;
+                    box-shadow: 0 25px 50px rgba(0, 0, 0, 0.12);
+                }
+
+                .modal-header {
+                    border-bottom: 1px solid #f1f5f9;
+                    padding: 1.5rem 1.75rem;
+                }
+
+                .modal-footer {
+                    border-top: 1px solid #f1f5f9;
+                    padding: 1.25rem 1.75rem;
+                }
+
+                .form-control,
+            .form-select {
+                    border-radius: 10px;
+                    border: 2px solid #f1f5f9;
+                    padding: 0.6rem 1rem;
+                    font-size: 0.9rem;
+                    transition: all 0.2s;
+                }
+
+                .form-control:focus,
+            .form-select:focus {
+                    border-color: #6366f1;
+                    box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.1);
+                }
+
+                .form-label {
+                    font-weight: 700;
+                    font-size: 0.85rem;
+                    color: #475569;
+                    margin-bottom: 0.4rem;
+                }
+
+                #imgPre {
+                    width: 100px;
+                    height: 100px;
+                    object-fit: cover;
+                    border-radius: 16px;
+                    border: 2px dashed #e2e8f0;
+                }
+    </style>
+</head>
+<body>
+
+    <div class="main-content">
+        <div class="row align-items-end mb-4 g-3">
+            <div class="col-lg-8">
+                <a href="/Staff/Dashboard" class="btn-back-custom mb-3">
+                    <i class="bi bi-house-door-fill me-2"></i> กลับหน้าแดชบอร์ด
+                </a>
+                <div class="d-flex align-items-center gap-3">
+                    <h2 class="fw-bold mb-0" style="color: #1e293b; letter-spacing: -1px; font-size: 2rem;">
+                        บริหารคลังสินค้า</h2>
+                        <span class="badge rounded-pill bg-primary bg-opacity-10 text-primary fw-bold px-3 py-2"
+                              style="font-size: 0.85rem; border: 1px solid rgba(99, 102, 241, 0.1);">
+                            <i class="bi bi-box-seam me-1"></i> @Model.Count() รายการ
+                        </span>
+                    </div>
+                    <p class="text-muted mb-0 mt-1">ตรวจสอบสถานะสินค้าและจัดการสต็อกให้พร้อมขายอยู่เสมอ</p>
+                </div>
+                <div class="col-lg-4 text-lg-end">
+                    <div class="d-flex gap-2 justify-content-lg-end">
+                        <a href="/Staff/StockReport" class="btn btn-white border shadow-sm fw-bold px-3 py-2"
+                               style="border-radius: 12px; color: #475569; background: white;">
+                            <i class="bi bi-file-earmark-bar-graph me-1"></i> รายงาน
+                        </a>
+                        <button class="btn btn-primary btn-add-new shadow-sm text-white" onclick="showAddModal()">
+                            <i class="bi bi-plus-lg me-1"></i> เพิ่มสินค้าใหม่
+                        </button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-4 mb-5">
+                <div class="col-md-3">
+                    <div class="card stat-card-custom">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-box-modern bg-primary bg-opacity-10 text-primary">
+                                <i class="bi bi-cake2"></i>
+                            </div>
+                            <div class="ms-3">
+                                <p class="text-muted small mb-0 fw-bold">เมนูทั้งหมด</p>
+                                <h3 class="fw-bold mb-0 text-dark">@Model.Count()</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card stat-card-custom">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-box-modern bg-danger bg-opacity-10 text-danger">
+                                <i class="bi bi-exclamation-circle"></i>
+                            </div>
+                            <div class="ms-3">
+                                <p class="text-muted small mb-0 fw-bold">สินค้าหมด</p>
+                                <h3 class="fw-bold mb-0 text-dark">@Model.Count(p => p.StockQty <= 0)</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card stat-card-custom">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-box-modern bg-warning bg-opacity-10 text-warning">
+                                <i class="bi bi-lightning-charge"></i>
+                            </div>
+                            <div class="ms-3">
+                                <p class="text-muted small mb-0 fw-bold">สต็อกใกล้หมด</p>
+                                <h3 class="fw-bold mb-0 text-dark">@Model.Count(p => p.StockQty > 0 && p.StockQty < 5)</h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <div class="col-md-3">
+                    <div class="card stat-card-custom">
+                        <div class="d-flex align-items-center">
+                            <div class="icon-box-modern bg-success bg-opacity-10 text-success">
+                                <i class="bi bi-wallet2"></i>
+                            </div>
+                            <div class="ms-3">
+                                <p class="text-muted small mb-0 fw-bold">มูลค่าคลังรวม</p>
+                                <h3 class="fw-bold mb-0 text-dark">
+                                    ฿@Model.Sum(p => p.Price * p.StockQty).ToString("N0")
+                                </h3>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <div class="card inventory-card shadow-sm border-0 mb-5">
+                <div class="table-responsive">
+                    <table class="table table-hover align-middle mb-0">
+                        <thead>
+                            <tr>
+                                <th class="ps-4" style="width: 40%;">ข้อมูลสินค้า</th>
+                                <th class="text-center">ราคา</th>
+                                <th class="text-center">สต็อก</th>
+                                <th class="text-center">สถานะ</th>
+                                <th class="text-end pe-4">จัดการ</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            @foreach (var item in Model)
+                            {
+                                string finalImagePath;
+                                if (string.IsNullOrEmpty(item.ProductImage))
+                                {
+                                    finalImagePath = "/images/no-image.png";
+                                }
+                                else if (item.ProductImage.StartsWith("/"))
+                                {
+                                    finalImagePath = item.ProductImage;
+                                }
+                                else
+                                {
+                                    finalImagePath = "/images/products/" + item.ProductImage;
+                                }
+
+                                <tr id="row-@item.ProductId">
+                                    <td class="ps-4">
+                                        <div class="d-flex align-items-center py-2">
+                                            <img src="@finalImagePath"                            class="rounded-3 me-3 border"
+                                                 style="width: 48px; height: 48px; object-fit: cover; flex-shrink: 0;"
+                                                 alt="@item.CakeName"
+                                                 onerror="this.onerror=null; this.src='/images/no-image.png';">
+                                            <div>
+                                                <div class="fw-bold text-dark mb-0"
+                                                     style="font-size: 0.95rem; line-height: 1.2;">@item.CakeName</div>
+                                                <span class="text-muted" style="font-size: 0.75rem;">ID: #@item.ProductId</span>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="text-center fw-bold text-dark">฿@item.Price.ToString("N2")</td>
+                                    <td class="text-center">
+                                        <input type="number" class="stock-input text-center" style="width: 70px;"
+                                               value="@item.StockQty"                       onchange="updateStockInline(@item.ProductId, this)">
+                                    </td>
+                                    <td class="text-center">
+                                        <span class="badge @(item.StockQty <= 0 ? "bg-danger" : item.StockQty < 5 ? "bg-warning" : "bg-success") bg-opacity-10 text-@(item.StockQty <= 0 ? "danger" : item.StockQty < 5 ? "warning" : "success") rounded-pill px-3 py-2"
+                                              style="font-size: 0.7rem;">
+                                            @(item.StockQty <= 0 ? "Out of Stock" : item.StockQty < 5 ? "Low Stock" : "In Stock")
+                                        </span>
+                                    </td>
+                                    <td class="text-end pe-4">
+                                        <button class="btn-edit-round me-1" onclick="editProduct(@item.ProductId)"><i
+                                            class="bi bi-pencil-square"></i></button>
+                                            <button class="btn-del-round"
+                                                    onclick="deleteProduct(@item.ProductId, '@item.CakeName')"><i
+                                                class="bi bi-trash3-fill"></i></button>
+                                            </td>
+                                        </tr>
+                                    }
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- ✅ Modal แก้ไขสินค้า -->
+            <div class="modal fade" id="editProductModal" tabindex="-1" aria-labelledby="editProductModalLabel"
+                 aria-hidden="true">
+                <div class="modal-dialog modal-dialog-centered">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                            <h5 class="modal-title fw-bold" id="editProductModalLabel">
+                                <i class="bi bi-pencil-square text-primary me-2"></i> แก้ไขสินค้า
+                            </h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                        </div>
+
+                        <form id="editProductForm" enctype="multipart/form-data">
+                            <div class="modal-body px-4 py-3">
+                                <div class="row g-3">
+
+                                    <!-- Preview รูป -->
+                                    <div class="col-12 text-center">
+                                        <img id="editImgPre" src="/images/no-image.png" alt="Preview"
+                                             style="width:100px;height:100px;object-fit:cover;border-radius:16px;border:2px dashed #e2e8f0;">
+                                        <p class="text-muted small mt-2 mb-0">ตัวอย่างรูปภาพสินค้า</p>
+                                    </div>
+
+                                    <input type="hidden" id="editProductId" name="ProductId">
+
+                                    <!-- ชื่อสินค้า -->
+                                    <div class="col-12">
+                                        <label class="form-label">ชื่อสินค้า <span class="text-danger">*</span></label>
+                                        <input type="text" id="editCakeName" name="CakeName" class="form-control" required>
+                                    </div>
+
+                                    <!-- ราคา -->
+                                    <div class="col-6">
+                                        <label class="form-label">ราคา (บาท) <span class="text-danger">*</span></label>
+                                        <input type="number" id="editPrice" name="Price" class="form-control" min="0"
+                                               step="0.01" required>
+                                    </div>
+
+                                    <!-- ส่วนลด -->
+                                    <div class="col-6">
+                                        <label class="form-label">ส่วนลด (บาท)</label>
+                                        <input type="number" id="editDiscount" name="DiscountAmount" class="form-control"
+                                               min="0" step="0.01" value="0">
+                                    </div>
+
+                                    <!-- จำนวนสต็อก -->
+                                    <div class="col-6">
+                                        <label class="form-label">จำนวนสต็อก <span class="text-danger">*</span></label>
+                                        <input type="number" id="editStock" name="StockQty" class="form-control" min="0"
+                                               required>
+                                    </div>
+
+                                    <!-- วันหมดอายุ -->
+                                    <div class="col-6">
+                                        <label class="form-label">วันหมดอายุ</label>
+                                        <input type="date" id="editExpiry" name="ExpiryDate" class="form-control">
+                                    </div>
+
+                                    <!-- รูปภาพ (ถ้าไม่เลือกใหม่ จะคงรูปเดิมไว้) -->
+                                    <div class="col-12">
+                                        <label class="form-label">เปลี่ยนรูปภาพ <span
+                                            class="text-muted fw-normal">(ไม่บังคับ)</span></label>
+                                            <input type="file" id="editImageFile" name="imageFile" class="form-control"
+                                                   accept="image/*" onchange="previewEditImg(this)">
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-light fw-bold px-4" data-bs-dismiss="modal"
+                                            style="border-radius:10px;">
+                                        ยกเลิก
+                                    </button>
+                                    <button type="button" class="btn btn-primary fw-bold px-4 text-white"
+                                            onclick="submitEditProduct()"
+                                            style="border-radius:10px; background: var(--primary-gradient); border:none;">
+                                        <i class="bi bi-check-lg me-1"></i> บันทึกการแก้ไข
+                                    </button>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+                <!-- ✅ Modal เพิ่มสินค้าใหม่ -->
+                <div class="modal fade" id="addProductModal" tabindex="-1" aria-labelledby="addProductModalLabel"
+                     aria-hidden="true">
+                    <div class="modal-dialog modal-dialog-centered">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                                <h5 class="modal-title fw-bold" id="addProductModalLabel">
+                                    <i class="bi bi-plus-circle-fill text-primary me-2"></i> เพิ่มสินค้าใหม่
+                                </h5>
+                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+
+                            <form action="/Staff/AddProduct" method="post" enctype="multipart/form-data">
+                                <div class="modal-body px-4 py-3">
+                                    <div class="row g-3">
+
+                                        <!-- Preview รูป -->
+                                        <div class="col-12 text-center">
+                                            <img id="imgPre" src="/images/no-image.png" alt="Preview">
+                                            <p class="text-muted small mt-2 mb-0">ตัวอย่างรูปภาพสินค้า</p>
+                                        </div>
+
+                                        <!-- ชื่อสินค้า -->
+                                        <div class="col-12">
+                                            <label class="form-label">ชื่อสินค้า <span class="text-danger">*</span></label>
+                                            <input type="text" name="CakeName" class="form-control" placeholder="เช่น เค้กช็อกโกแลต"
+                                                   required>
+                                        </div>
+
+                                        <!-- ราคา -->
+                                        <div class="col-6">
+                                            <label class="form-label">ราคา (บาท) <span class="text-danger">*</span></label>
+                                            <input type="number" name="Price" class="form-control" placeholder="0.00" min="0"
+                                                   step="0.01" required>
+                                        </div>
+
+                                        <!-- ส่วนลด -->
+                                        <div class="col-6">
+                                            <label class="form-label">ส่วนลด (บาท)</label>
+                                            <input type="number" name="DiscountAmount" class="form-control" placeholder="0.00"
+                                                   min="0" step="0.01" value="0">
+                                        </div>
+
+                                        <!-- จำนวนสต็อก -->
+                                        <div class="col-6">
+                                            <label class="form-label">จำนวนสต็อก <span class="text-danger">*</span></label>
+                                            <input type="number" name="StockQty" class="form-control" placeholder="0" min="0"
+                                                   required>
+                                        </div>
+
+                                        <!-- วันหมดอายุ -->
+                                        <div class="col-6">
+                                            <label class="form-label">วันหมดอายุ</label>
+                                            <input type="date" name="ExpiryDate" class="form-control">
+                                        </div>
+
+                                        <!-- รูปภาพ -->
+                                        <div class="col-12">
+                                            <label class="form-label">รูปภาพสินค้า</label>
+                                            <input type="file" name="imageFile" class="form-control" accept="image/*"
+                                                   onchange="previewImg(this)">
+                                        </div>
+
+                                    </div>
+                                </div>
+
+                                <div class="modal-footer">
+                                    <button type="button" class="btn btn-light fw-bold px-4" data-bs-dismiss="modal"
+                                            style="border-radius: 10px;">
+                                        ยกเลิก
+                                    </button>
+                                    <button type="submit" class="btn btn-primary fw-bold px-4 text-white"
+                                            style="border-radius: 10px; background: var(--primary-gradient); border: none;">
+                                        <i class="bi bi-check-lg me-1"></i> บันทึกสินค้า
+                                    </button>
+                                </div>
+                            </form>
+
+                        </div>
+                    </div>
+                </div>
+
+                <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+                <script>
+                    function showAddModal() {
+                    new bootstrap.Modal(document.getElementById('addProductModal')).show();
+                    }
+
+                    function previewImg(input) {
+                    if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => document.getElementById('imgPre').src = e.target.result;
+                    reader.readAsDataURL(input.files[0]);
+                    }
+                    }
+
+                    function updateStockInline(id, inputElement) {
+                    const qty = inputElement.value;
+                    const formData = new FormData();
+                    formData.append('id', id);
+                    formData.append('newQty', qty);
+
+                    fetch('/Staff/UpdateStock', { method: 'POST', body: formData })
+                    .then(res => res.json())
+                    .then(data => {
+                    if (data.success) {
+                    inputElement.classList.add('is-valid');
+                    setTimeout(() => {
+                    inputElement.classList.remove('is-valid');
+                    location.reload();
+                    }, 500);
+                    } else {
+                    alert('เกิดข้อผิดพลาดในการอัปเดตสต็อก');
+                    }
+                    })
+                    .catch(err => console.error('Error:', err));
+                    }
+
+                    function deleteProduct(id, name) {
+                    if (confirm(`ยืนยันการลบ "${name}" ?`)) {
+                    const formData = new FormData();
+                    formData.append('id', id);
+                    fetch('/Staff/DeleteProduct', { method: 'POST', body: formData })
+                    .then(res => res.json())
+                    .then(data => {
+                    if (data.success) {
+                    const row = document.getElementById(`row-${id}`);
+                    row.style.transform = 'translateX(100px)';
+                    row.style.opacity = '0';
+                    setTimeout(() => row.remove(), 300);
+                    } else {
+                    // ✅ แสดง error message ที่ได้จาก Controller
+                    alert('❌ ' + (data.message || 'ไม่สามารถลบได้'));
+                    }
+                    })
+                    .catch(err => alert('เกิดข้อผิดพลาด: ' + err));
+                    }
+                    }
+
+                    // ข้อมูลสินค้าทั้งหมดจาก Razor (ใช้ดึงข้อมูลใส่ Modal)
+                    const products = {
+                    @foreach (var p in Model)
+                    {
+                        var expiry = p.ExpiryDate.HasValue ? p.ExpiryDate.Value.ToString("yyyy-MM-dd") : "";
+                        var img = string.IsNullOrEmpty(p.ProductImage) ? "/images/no-image.png"
+                                  : p.ProductImage.StartsWith("/") ? p.ProductImage
+                                  : "/images/products/" + p.ProductImage;
+                        @:@p.ProductId: {
+                        @:id: @p.ProductId,
+                        @:name: "@Html.Raw(p.CakeName.Replace("\"", "\\\""))",
+                        @:price: @p.Price,
+                        @:discount: @(p.DiscountAmount ?? 0),
+                        @:stock: @p.StockQty,
+                        @:expiry: "@expiry",
+                        @:image: "@img"
+                        @:},
+                    }
+                    };
+
+                    function editProduct(id) {
+                    const p = products[id];
+                    if (!p) return;
+
+                    document.getElementById('editProductId').value = p.id;
+                    document.getElementById('editCakeName').value = p.name;
+                    document.getElementById('editPrice').value = p.price;
+                    document.getElementById('editDiscount').value = p.discount;
+                    document.getElementById('editStock').value = p.stock;
+                    document.getElementById('editExpiry').value = p.expiry;
+                    document.getElementById('editImgPre').src = p.image;
+                    document.getElementById('editImageFile').value = ''; // reset file input
+
+                    new bootstrap.Modal(document.getElementById('editProductModal')).show();
+                    }
+
+                    function previewEditImg(input) {
+                    if (input.files && input.files[0]) {
+                    const reader = new FileReader();
+                    reader.onload = (e) => document.getElementById('editImgPre').src = e.target.result;
+                    reader.readAsDataURL(input.files[0]);
+                    }
+                    }
+
+                    function submitEditProduct() {
+                    const form = document.getElementById('editProductForm');
+                    const formData = new FormData(form);
+
+                    fetch('/Staff/EditProduct', { method: 'POST', body: formData })
+                    .then(res => res.json())
+                    .then(data => {
+                    if (data.success) {
+                    bootstrap.Modal.getInstance(document.getElementById('editProductModal')).hide();
+                    location.reload();
+                    } else {
+                    alert('เกิดข้อผิดพลาด: ' + (data.message || 'ไม่ทราบสาเหตุ'));
+                    }
+                    })
+                    .catch(err => console.error('Error:', err));
+                    }
+                </script>
+            </body>

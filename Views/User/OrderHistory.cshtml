@@ -1,0 +1,230 @@
+@model IEnumerable<Project_CakeShop_66095681.Models.Db.Order>
+@{
+    ViewData["Title"] = "ประวัติการสั่งซื้อ";
+}
+
+<style>
+    body { background: #f8f9fa; font-family: 'Kanit', sans-serif; }
+
+    .page-header {
+        background: linear-gradient(135deg, #1a1a1a 0%, #2d2d2d 100%);
+        color: white;
+        padding: 50px 0 30px;
+        margin-bottom: 40px;
+    }
+
+    .order-card {
+        background: #fff;
+        border-radius: 20px;
+        border: 1px solid #f0f0f0;
+        margin-bottom: 20px;
+        overflow: hidden;
+        transition: 0.3s;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    }
+
+    .order-card:hover {
+        box-shadow: 0 8px 25px rgba(0,0,0,0.08);
+        transform: translateY(-2px);
+    }
+
+    .order-header {
+        background: #fafafa;
+        padding: 16px 24px;
+        border-bottom: 1px solid #f0f0f0;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        flex-wrap: wrap;
+        gap: 10px;
+    }
+
+    .order-body { padding: 20px 24px; }
+
+    .order-item {
+        display: flex;
+        align-items: center;
+        padding: 12px 0;
+        border-bottom: 1px solid #f8f8f8;
+        gap: 15px;
+    }
+
+    .order-item:last-child { border-bottom: none; }
+
+    .item-img {
+        width: 64px;
+        height: 64px;
+        border-radius: 12px;
+        object-fit: cover;
+        border: 1px solid #f0f0f0;
+        flex-shrink: 0;
+    }
+
+    .status-badge {
+        padding: 5px 14px;
+        border-radius: 50px;
+        font-size: 0.78rem;
+        font-weight: 700;
+    }
+
+    .status-completed  { background: #d1fae5; color: #065f46; }
+    .status-processing { background: #dbeafe; color: #1d4ed8; }
+    .status-pending    { background: #fef3c7; color: #92400e; }
+    .status-cancelled  { background: #fee2e2; color: #991b1b; }
+    .status-other      { background: #e5e7eb; color: #374151; }
+
+    .total-badge {
+        font-size: 1.15rem;
+        font-weight: 800;
+        color: #198754;
+    }
+
+    .empty-state {
+        text-align: center;
+        padding: 80px 20px;
+    }
+
+    .empty-icon {
+        font-size: 4rem;
+        color: #dee2e6;
+        margin-bottom: 20px;
+    }
+</style>
+
+<div class="page-header">
+    <div class="container">
+        <a asp-controller="Home" asp-action="Welcome" class="text-white-50 text-decoration-none small">
+            <i class="bi bi-chevron-left me-1"></i>กลับหน้าหลัก
+        </a>
+        <h2 class="fw-bold mt-2 mb-0">ประวัติการสั่งซื้อ<span class="text-success">.</span></h2>
+        <p class="text-white-50 small mt-1 mb-0">รายการทั้งหมดของคุณ</p>
+    </div>
+</div>
+
+<div class="container pb-5">
+    @if (Model != null && Model.Any())
+    {
+        var completedOrders = Model.Where(o => o.OrderStatus == "Completed" || o.OrderStatus == "Ready").ToList();
+        var processingOrders = Model.Where(o => o.OrderStatus == "Processing").ToList();
+
+        if (completedOrders.Any())
+        {
+            <div class="alert border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #d1fae5, #ecfdf5); border-radius: 20px; padding: 20px 24px;">
+                <div class="d-flex align-items-center">
+                    <div style="width:50px;height:50px;background:#065f46;border-radius:15px;display:flex;align-items:center;justify-content:center;margin-right:16px;">
+                        <i class="bi bi-bell-fill text-white fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1" style="color: #065f46;">
+                            สินค้าของคุณพร้อมแล้ว! (@completedOrders.Count รายการ)
+                        </h6>
+                        <p class="small mb-0" style="color: #047857;">
+                            @foreach (var o in completedOrders.Take(3))
+                            {
+                                <span class="badge bg-white text-success border border-success me-1" style="border-radius:50px;">
+                                    Order #@o.OrderId
+                                </span>
+                            }
+                            @if (completedOrders.Count > 3)
+                            {
+                                <span class="text-success small">และอีก @(completedOrders.Count - 3) รายการ</span>
+                            }
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+
+        @if (processingOrders.Any())
+        {
+            <div class="alert border-0 shadow-sm mb-4" style="background: linear-gradient(135deg, #dbeafe, #eff6ff); border-radius: 20px; padding: 20px 24px;">
+                <div class="d-flex align-items-center">
+                    <div style="width:50px;height:50px;background:#1d4ed8;border-radius:15px;display:flex;align-items:center;justify-content:center;margin-right:16px;">
+                        <i class="bi bi-clock-history text-white fs-4"></i>
+                    </div>
+                    <div>
+                        <h6 class="fw-bold mb-1" style="color: #1d4ed8;">
+                            กำลังเตรียมสินค้า (@processingOrders.Count รายการ)
+                        </h6>
+                        <p class="small mb-0" style="color: #2563eb;">
+                            ทีมงานกำลังเตรียมเค้กของคุณอยู่ กรุณารอสักครู่
+                        </p>
+                    </div>
+                </div>
+            </div>
+        }
+
+        <p class="text-muted small mb-4">พบ @Model.Count() รายการ</p>
+
+        @foreach (var order in Model)
+        {
+            var statusClass = order.OrderStatus switch {
+                "Completed" or "Paid" => "status-completed",
+                "Processing"          => "status-processing",
+                "Pending"             => "status-pending",
+                "Cancelled"           => "status-cancelled",
+                _                     => "status-other"
+            };
+            var statusText = order.OrderStatus switch {
+                "Completed" or "Paid" => "✅ สินค้าเสร็จแล้ว",
+                "Processing"          => "🔧 กำลังเตรียมสินค้า",
+                "Pending"             => "⏳ รอดำเนินการ",
+                "Cancelled"           => "❌ ยกเลิก",
+                _                     => order.OrderStatus ?? "-"
+            };
+
+            <div class="order-card">
+                <div class="order-header">
+                    <div class="d-flex align-items-center gap-3">
+                        <div>
+                            <span class="fw-bold text-dark">Order #@order.OrderId</span>
+                            <div class="text-muted small mt-1">
+                                <i class="bi bi-calendar3 me-1"></i>
+                                @(order.OrderDate?.ToString("dd MMM yyyy, HH:mm") ?? "-")
+                            </div>
+                        </div>
+                    </div>
+                    <div class="d-flex align-items-center gap-3">
+                        <span class="status-badge @statusClass">@statusText</span>
+                        <span class="total-badge">฿@order.TotalPrice.ToString("N0")</span>
+                    </div>
+                </div>
+
+                <div class="order-body">
+                    @if (order.Orderdetails != null && order.Orderdetails.Any())
+                    {
+                        @foreach (var detail in order.Orderdetails)
+                        {
+                            <div class="order-item">
+                                <img src="@(string.IsNullOrEmpty(detail.Product?.ProductImage) ? "/images/no-image.png" : detail.Product.ProductImage)"
+                                     class="item-img" alt="@detail.Product?.CakeName" />
+                                <div class="flex-grow-1">
+                                    <div class="fw-bold">@(detail.Product?.CakeName ?? "สินค้า")</div>
+                                    <div class="text-muted small">฿@detail.UnitPrice.ToString("N0") × @detail.Quantity ชิ้น</div>
+                                </div>
+                                <div class="fw-bold text-dark">
+                                    ฿@((detail.UnitPrice * detail.Quantity).ToString("N0"))
+                                </div>
+                            </div>
+                        }
+                    }
+                    else
+                    {
+                        <p class="text-muted small mb-0">ไม่มีรายละเอียดสินค้า</p>
+                    }
+                </div>
+            </div>
+        }
+    }
+    else
+    {
+        <div class="empty-state">
+            <div class="empty-icon"><i class="bi bi-bag-x"></i></div>
+            <h4 class="fw-bold">ยังไม่มีประวัติการสั่งซื้อ</h4>
+            <p class="text-muted mb-4">เริ่มต้นสั่งซื้อเค้กแสนอร่อยของเราได้เลยครับ</p>
+            <a asp-controller="User" asp-action="ProductCustomer" class="btn btn-dark rounded-pill px-5 py-2 fw-bold">
+                <i class="bi bi-cake2 me-2"></i>เลือกซื้อเค้ก
+            </a>
+        </div>
+    }
+</div>

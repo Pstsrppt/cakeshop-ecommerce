@@ -1,0 +1,104 @@
+@model int
+
+@{
+    ViewData["Title"] = "Order Success";
+    // ถ้าหน้าจอนี้ไม่มีเมนูบาร์ ให้เอา Layout ออก หรือถ้าจะใช้ Layout ปกติก็คงไว้ครับ
+    // Layout = "_Layout"; 
+}
+
+<style>
+    body { background-color: #ffffff; font-family: 'Inter', 'Kanit', sans-serif; overflow-x: hidden; }
+
+    .success-container {
+        min-height: 80vh;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        text-align: center;
+    }
+
+    .success-card {
+        max-width: 500px;
+        padding: 40px;
+        /* Animation การลอยขึ้น */
+        animation: fadeInUp 0.8s ease-out;
+    }
+
+    .icon-circle {
+        width: 100px;
+        height: 100px;
+        background: #f0f9f1;
+        color: #4a7c44;
+        border-radius: 50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 3.5rem;
+        margin: 0 auto 30px;
+        /* Animation การขยายตัว */
+        animation: scaleIn 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) 0.5s both;
+    }
+
+    .order-number {
+        background: #f8f9fa;
+        padding: 12px 25px;
+        border-radius: 15px;
+        display: inline-block;
+        font-weight: 700;
+        color: #1a1a1a;
+        margin: 20px 0;
+        border: 1px dashed #ddd;
+    }
+
+    .btn-home {
+        padding: 15px 40px;
+        border-radius: 50px;
+        background: #1a1a1a;
+        color: #fff !important;
+        text-decoration: none;
+        font-weight: 700;
+        display: inline-block;
+        transition: 0.3s;
+        margin-top: 20px;
+        border: none;
+    }
+
+    .btn-home:hover {
+        background: #e5989b; /* เปลี่ยนเป็นสีชมพูโทนร้านเค้กเมื่อ Hover */
+        transform: translateY(-3px);
+        box-shadow: 0 10px 20px rgba(0,0,0,0.1);
+    }
+
+    /* Keyframes สำหรับ Animation */
+    @@keyframes fadeInUp {
+        from { opacity: 0; transform: translateY(30px); }
+        to { opacity: 1; transform: translateY(0); }
+    }
+
+    @@keyframes scaleIn {
+        from { transform: scale(0); }
+        to { transform: scale(1); }
+    }
+</style>
+
+<div class="success-container">
+    <div class="success-card">
+        <div class="icon-circle">
+            <i class="bi bi-check-lg"></i>
+        </div>
+        
+        <h1 class="fw-800" style="letter-spacing: -1.5px; font-size: 2.5rem;">Sweet Success!</h1>
+        <p class="text-muted fs-5">ขอบคุณที่เลือกสั่งขนมกับเรา เราได้รับออเดอร์ของคุณเรียบร้อยแล้วและกำลังเตรียมอบเค้กแสนอร่อยให้คุณครับ</p>
+        
+        <div class="order-number">
+            Order ID: #@Model
+        </div>
+
+        <p class="small text-muted mb-4">เรากำลังดำเนินการตรวจสอบยอดชำระและจะแจ้งสถานะผ่านระบบต่อไป</p>
+        
+        @* แก้ไขปุ่มให้ใช้ asp-action เพื่อความชัวร์ *@
+        <a asp-controller="User" asp-action="ProductCustomer" class="btn-home">
+            Continue Shopping <i class="bi bi-arrow-right ms-2"></i>
+        </a>
+    </div>
+</div>

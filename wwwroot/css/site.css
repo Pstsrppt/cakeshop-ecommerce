@@ -1,0 +1,54 @@
+html {
+  font-size: 14px;
+}
+
+@media (min-width: 768px) {
+  html {
+    font-size: 16px;
+  }
+}
+
+.btn:focus, .btn:active:focus, .btn-link.nav-link:focus, .form-control:focus, .form-check-input:focus {
+  box-shadow: 0 0 0 0.1rem white, 0 0 0 0.25rem #258cfb;
+}
+
+html {
+  position: relative;
+  min-height: 100%;
+}
+
+body {
+  margin-bottom: 60px;
+}
+
+.form-floating > .form-control-plaintext::placeholder, .form-floating > .form-control::placeholder {
+  color: var(--bs-secondary-color);
+  text-align: end;
+}
+
+.form-floating > .form-control-plaintext:focus::placeholder, .form-floating > .form-control:focus::placeholder {
+  text-align: start;
+}
+/* กำหนดค่าพื้นฐานให้ทั้งโปรเจกต์ */
+html {
+    font-size: 16px; /* มาตรฐาน */
+}
+
+body {
+    font-family: 'Inter', 'Kanit', sans-serif !important;
+    -webkit-font-smoothing: antialiased;
+    line-height: 1.6;
+}
+
+/* แก้ปัญหาหัวข้อ (Heading) ขนาดไม่เท่ากัน */
+h1, h2, h3, .navbar-brand {
+    font-family: 'Inter', 'Kanit', sans-serif;
+    letter-spacing: -0.02em;
+}
+
+/* ปรับขนาดปุ่มทั่วๆ ไปให้ดู Modern */
+.btn {
+    font-family: 'Inter', 'Kanit', sans-serif;
+    font-weight: 500;
+    text-transform: none; /* ไม่ให้เป็นตัวพิมพ์ใหญ่ทั้งหมดอัตโนมัติ */
+}

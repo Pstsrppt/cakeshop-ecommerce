@@ -1,0 +1,238 @@
+@model Project_CakeShop_66095681.Models.RegisterViewModel
+
+@{
+    ViewData["Title"] = "Register";
+}
+
+<style>
+    /* 1. ซ่อน Navbar และ Footer */
+    nav, footer {
+        display: none !important;
+    }
+
+    body {
+        background-color: #ffffff;
+        font-family: 'Inter', 'Kanit', sans-serif;
+        margin: 0;
+        overflow-x: hidden;
+    }
+
+    /* 2. Container หลักแบบ Flex แบ่งซ้าย-ขวา */
+    .split-screen {
+        display: flex;
+        min-height: 100vh;
+        width: 100%;
+    }
+
+    /* 3. ฝั่งซ้าย: โลโก้ */
+    .left-side {
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: center;
+        align-items: center;
+        background-color: #fcfcfc; /* สีพื้นหลังนวลๆ */
+        border-right: 1px solid #eee;
+        padding: 40px;
+    }
+
+    /* 4. ฝั่งขวา: ฟอร์ม */
+    .right-side {
+        flex: 1;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        padding: 40px;
+        background-color: #ffffff;
+    }
+
+    /* สไตล์โลโก้ฝั่งซ้าย */
+    .brand-box {
+        text-align: center;
+    }
+
+    .brand-icon-big {
+        font-size: 5rem;
+        color: #4a7c44;
+        margin-bottom: 15px;
+    }
+
+    .brand-name-big {
+        font-weight: 800;
+        font-size: 2.5rem;
+        letter-spacing: -1.5px;
+        color: #1a1a1a;
+    }
+
+    .brand-name-big span {
+        color: #4a7c44;
+    }
+
+    /* สไตล์ฟอร์มฝั่งขวา */
+    .regis-form-container {
+        width: 100%;
+        max-width: 400px;
+    }
+
+    .regis-header {
+        margin-bottom: 30px;
+    }
+
+    .regis-header h2 {
+        font-weight: 700;
+        font-size: 1.8rem;
+        margin-bottom: 10px;
+    }
+
+    .regis-header p {
+        color: #888;
+    }
+
+    .form-label {
+        font-weight: 600;
+        font-size: 0.85rem;
+        color: #555;
+        margin-bottom: 8px;
+        display: block;
+    }
+
+    .input-field {
+        width: 100%;
+        padding: 14px 18px;
+        border-radius: 12px;
+        border: 1px solid #eee;
+        background-color: #f9f9f9;
+        font-size: 1rem;
+        transition: all 0.2s ease;
+        margin-bottom: 20px;
+    }
+
+    .input-field:focus {
+        outline: none;
+        border-color: #1a1a1a;
+        background-color: #fff;
+        box-shadow: 0 0 0 4px rgba(0,0,0,0.02);
+    }
+
+    .btn-regis-submit {
+        width: 100%;
+        padding: 16px;
+        border-radius: 50px;
+        background-color: #1a1a1a;
+        color: #fff;
+        border: none;
+        font-weight: 600;
+        font-size: 1rem;
+        transition: 0.3s;
+        margin-top: 10px;
+    }
+
+    .btn-regis-submit:hover {
+        background-color: #333;
+        transform: translateY(-2px);
+    }
+
+    .login-link {
+        text-align: center;
+        margin-top: 25px;
+        font-size: 0.9rem;
+        color: #777;
+    }
+
+    .login-link a {
+        color: #1a1a1a;
+        font-weight: 700;
+        text-decoration: none;
+    }
+
+    /* ปุ่มย้อนกลับแบบลอย */
+    .floating-back {
+        position: fixed;
+        top: 30px;
+        left: 30px;
+        z-index: 100;
+        color: #888;
+        text-decoration: none;
+        font-weight: 500;
+        display: flex;
+        align-items: center;
+        gap: 8px;
+        transition: 0.3s;
+    }
+
+    .floating-back:hover {
+        color: #1a1a1a;
+    }
+
+    /* Responsive: ถ้าจอมือถือ ให้ซ้อนกันเป็นแนวตั้ง */
+    @@media (max-width: 992px) {
+        .split-screen {
+            flex-direction: column;
+        }
+        .left-side {
+            padding: 60px 20px;
+            border-right: none;
+            border-bottom: 1px solid #eee;
+        }
+        .right-side {
+            padding: 40px 20px;
+        }
+        .floating-back {
+            top: 20px;
+            left: 20px;
+        }
+    }
+</style>
+
+<a href="/" class="floating-back">
+    <i class="bi bi-arrow-left"></i> Back to shop
+</a>
+
+<div class="split-screen">
+    <div class="left-side">
+        <div class="brand-box">
+            <i class="bi bi-cake2-fill brand-icon-big"></i>
+            <h1 class="brand-name-big">CAKESHOP<span>.</span></h1>
+            <p class="text-muted">Premium Homemade Bakery</p>
+        </div>
+    </div>
+
+    <div class="right-side">
+        <div class="regis-form-container">
+            <div class="regis-header">
+                <h2>Create Account</h2>
+                <p>Start your sweet journey with us today.</p>
+            </div>
+
+            <form asp-action="Register" method="post">
+                <div class="form-group">
+                    <label class="form-label">Full Name</label>
+                    <input asp-for="FullName" class="input-field" placeholder="John Doe" required />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Email Address</label>
+                    <input asp-for="Email" type="email" class="input-field" placeholder="example@mail.com" required />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Username</label>
+                    <input asp-for="Username" class="input-field" placeholder="Choose a username" required />
+                </div>
+
+                <div class="form-group">
+                    <label class="form-label">Password</label>
+                    <input asp-for="Password" type="password" class="input-field" placeholder="Create a password" required />
+                </div>
+
+                <button type="submit" class="btn-regis-submit">
+                    Register Now
+                </button>
+            </form>
+
+            <div class="login-link">
+                Already have an account? <a asp-action="Login">Sign In</a>
+            </div>
+        </div>
+    </div>
+</div>

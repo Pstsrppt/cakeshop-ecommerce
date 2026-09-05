@@ -1,0 +1,288 @@
+@model IEnumerable<Project_CakeShop_66095681.Models.Db.Order>
+
+@{
+    ViewData["Title"] = "จัดการออเดอร์";
+    var totalOrders   = Model?.Count() ?? 0;
+    var pendingOrders = Model?.Count(o => o.OrderStatus == "Pending") ?? 0;
+    var successOrders = Model?.Count(o => o.OrderStatus == "Completed" || o.OrderStatus == "Paid") ?? 0;
+    var cancelOrders  = Model?.Count(o => o.OrderStatus == "Cancelled") ?? 0;
+}
+
+<style>
+    body { font-family: 'Kanit', sans-serif; background: #f8f9fa; }
+
+    .page-header {
+        background: linear-gradient(135deg, #0ea5e9, #0284c7);
+        border-radius: 20px;
+        padding: 28px 32px;
+        color: white;
+        margin-bottom: 24px;
+    }
+
+    .orders-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid #f0f0f0;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    }
+
+    .table thead th {
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 14px 20px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .table tbody td { padding: 14px 20px; vertical-align: middle; border-bottom: 1px solid #f8f8f8; }
+    .table tbody tr:last-child td { border-bottom: none; }
+    .table tbody tr:hover { background: #f0f9ff; }
+
+    .avatar-sm {
+        width: 38px; height: 38px;
+        background: linear-gradient(135deg, #6366f1, #4f46e5);
+        color: white; border-radius: 10px;
+        display: flex; align-items: center; justify-content: center;
+        font-weight: 700; font-size: 0.95rem; flex-shrink: 0;
+    }
+
+    .order-badge {
+        background: #eef0ff; color: #4f46e5;
+        font-weight: 700; font-size: 0.82rem;
+        padding: 4px 10px; border-radius: 8px;
+        display: inline-block;
+    }
+
+    .walkin-badge {
+        background: #ede9fe; color: #6d28d9;
+        font-size: 0.75rem; font-weight: 700;
+        padding: 4px 12px; border-radius: 50px;
+        display: inline-block;
+    }
+
+    .product-item { font-size: 0.84rem; color: #444; line-height: 1.7; }
+    .product-item .qty { color: #bbb; font-size: 0.78rem; }
+
+    /* Status dropdown — ทำ style เหมือน btn-update ของ ManageUsers */
+    .status-wrap { position: relative; display: inline-block; }
+    .status-wrap::after {
+        content: '▾';
+        position: absolute;
+        right: 10px;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 0.7rem;
+        pointer-events: none;
+        opacity: 0.6;
+    }
+    .status-select {
+        border: none;
+        border-radius: 50px;
+        padding: 5px 28px 5px 14px;
+        font-family: 'Kanit', sans-serif;
+        font-size: 0.75rem;
+        font-weight: 700;
+        cursor: pointer;
+        outline: none;
+        appearance: none;
+        -webkit-appearance: none;
+        min-width: 140px;
+        text-align: center;
+    }
+    .status-pending   { background: #fff4e6; color: #e67700; border: 1px solid #ffd8a8; }
+    .status-completed { background: #e6fcf5; color: #087f5b; border: 1px solid #96f2d7; }
+    .status-cancelled { background: #fff5f5; color: #c92a2a; border: 1px solid #ffc9c9; }
+
+    .stat-chip {
+        background: rgba(255,255,255,0.2);
+        border-radius: 50px; padding: 6px 16px;
+        font-size: 0.85rem; font-weight: 700;
+        display: inline-block;
+    }
+
+    .btn-detail {
+        background: #f1f5f9; border: none; border-radius: 8px;
+        padding: 6px 14px; font-family: 'Kanit', sans-serif;
+        font-size: 0.78rem; font-weight: 600; color: #475569;
+        cursor: pointer; transition: 0.2s;
+    }
+    .btn-detail:hover { background: #e2e8f0; color: #1e293b; }
+
+    .summary-bar {
+        background: #f8fafc;
+        border-top: 1px solid #f1f5f9;
+        padding: 14px 20px;
+    }
+
+    .date-filter {
+        background: rgba(255,255,255,0.15);
+        border: 1px solid rgba(255,255,255,0.3);
+        border-radius: 10px;
+        padding: 6px 14px;
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        margin-top: 14px;
+    }
+    .date-filter label { font-size: 0.8rem; opacity: 0.85; }
+    .date-filter input[type="date"] {
+        border: none; background: transparent;
+        color: #fff; font-family: 'Kanit', sans-serif;
+        font-size: 0.85rem; outline: none; cursor: pointer;
+    }
+    .date-filter input[type="date"]::-webkit-calendar-picker-indicator { filter: invert(1); cursor: pointer; }
+</style>
+
+<div class="container-fluid px-4 py-4">
+
+     @*{{-- Header --}}*@
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <a asp-controller="Admin" asp-action="Dashboard"
+                   class="text-white text-decoration-none opacity-75 small d-inline-flex align-items-center gap-1 mb-2">
+                    <i class="bi bi-chevron-left"></i> กลับหน้า Dashboard
+                </a>
+                <h3 class="fw-bold mb-1">📋 จัดการออเดอร์</h3>
+                <p class="mb-0 opacity-75 small">ดูและเปลี่ยนสถานะคำสั่งซื้อทั้งหมดในระบบ</p>
+            </div>
+            <div class="d-flex gap-2 flex-wrap">
+                <span class="stat-chip">ทั้งหมด @totalOrders รายการ</span>
+                @if (pendingOrders > 0) { <span class="stat-chip">⏳ รอดำเนินการ @pendingOrders</span> }
+                @if (successOrders > 0) { <span class="stat-chip">✅ สำเร็จ @successOrders</span> }
+                @if (cancelOrders  > 0) { <span class="stat-chip">❌ ยกเลิก @cancelOrders</span> }
+            </div>
+        </div>
+        <form asp-action="ManageOrders" method="get">
+            <div class="date-filter">
+                <label>📅 กรองวันที่:</label>
+                <input type="date" name="filterDate" value="@ViewBag.SelectedDate" onchange="this.form.submit()" />
+            </div>
+        </form>
+    </div>
+
+   @*{{-- Table --}}*@
+    <div class="orders-card">
+        <div class="table-responsive">
+            <table class="table mb-0">
+                <thead>
+                    <tr>
+                        <th style="width:6%;">รหัส</th>
+                        <th style="width:18%;">ลูกค้า</th>
+                        <th style="width:24%;">รายการสินค้า</th>
+                        <th style="width:13%;">วันที่ / เวลา</th>
+                        <th style="width:10%;" class="text-end">ยอดรวม</th>
+                        <th style="width:17%;" class="text-center">สถานะ</th>
+                        <th style="width:12%;" class="text-center">รายละเอียด</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (Model != null && Model.Any())
+                    {
+                        @foreach (var order in Model)
+                        {
+                            <tr>
+                                <td><span class="order-badge">#@order.OrderId</span></td>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        @if (order.User != null)
+                                        {
+                                            <div class="avatar-sm">@order.User.FullName?.Substring(0,1).ToUpper()</div>
+                                            <div>
+                                                <div class="fw-bold" style="font-size:0.9rem;">@order.User.FullName</div>
+                                                <div class="text-muted" style="font-size:0.75rem;">@order.User.Email</div>
+                                            </div>
+                                        }
+                                        else
+                                        {
+                                            <span class="walkin-badge">🏪 หน้าร้าน</span>
+                                        }
+                                    </div>
+                                </td>
+                                <td>
+                                    @if (order.Orderdetails != null && order.Orderdetails.Any())
+                                    {
+                                        @foreach (var d in order.Orderdetails.Take(3))
+                                        {
+                                            <div class="product-item">@d.Product?.CakeName <span class="qty">×@d.Quantity</span></div>
+                                        }
+                                        @if (order.Orderdetails.Count > 3)
+                                        {
+                                            <div class="text-muted" style="font-size:0.75rem;">+@(order.Orderdetails.Count - 3) รายการ</div>
+                                        }
+                                    }
+                                    else { <span class="text-muted small">-</span> }
+                                </td>
+                                <td>
+                                    <div style="font-size:0.88rem;">@order.OrderDate?.ToString("dd/MM/yyyy")</div>
+                                    <div class="text-muted" style="font-size:0.75rem;">@order.OrderDate?.ToString("HH:mm") น.</div>
+                                </td>
+                                <td class="text-end fw-bold" style="color:#4f46e5;">
+                                    ฿@order.TotalPrice.ToString("N2")
+                                </td>
+                                <td class="text-center">
+                                    <form asp-controller="Admin" asp-action="UpdateOrderStatus" method="post">
+                                        <input type="hidden" name="orderId" value="@order.OrderId" />
+                                        <div class="status-wrap">
+                                            @if (order.OrderStatus == "Completed" || order.OrderStatus == "Paid")
+                                            {
+                                                <select name="newStatus" onchange="this.form.submit()" class="status-select status-completed">
+                                                    <option value="Pending">⏳ รอดำเนินการ</option>
+                                                    <option value="Completed" selected>✅ สำเร็จ</option>
+                                                    <option value="Cancelled">❌ ยกเลิก</option>
+                                                </select>
+                                            }
+                                            else if (order.OrderStatus == "Cancelled")
+                                            {
+                                                <select name="newStatus" onchange="this.form.submit()" class="status-select status-cancelled">
+                                                    <option value="Pending">⏳ รอดำเนินการ</option>
+                                                    <option value="Completed">✅ สำเร็จ</option>
+                                                    <option value="Cancelled" selected>❌ ยกเลิก</option>
+                                                </select>
+                                            }
+                                            else
+                                            {
+                                                <select name="newStatus" onchange="this.form.submit()" class="status-select status-pending">
+                                                    <option value="Pending" selected>⏳ รอดำเนินการ</option>
+                                                    <option value="Completed">✅ สำเร็จ</option>
+                                                    <option value="Cancelled">❌ ยกเลิก</option>
+                                                </select>
+                                            }
+                                        </div>
+                                    </form>
+                                </td>
+                                <td class="text-center">
+                                    <button class="btn-detail" onclick="alert('ออเดอร์ #@order.OrderId\nยอด: ฿@order.TotalPrice.ToString("N2")\nสถานะ: @order.OrderStatus')">
+                                        ดูบิล
+                                    </button>
+                                </td>
+                            </tr>
+                        }
+                    }
+                    else
+                    {
+                        <tr>
+                            <td colspan="7" class="text-center py-5 text-muted">
+                                <div style="font-size:2rem;">📭</div>
+                                <p class="mt-2 mb-0">ไม่พบรายการออเดอร์ในวันที่เลือก</p>
+                            </td>
+                        </tr>
+                    }
+                </tbody>
+            </table>
+        </div>
+
+        <div class="summary-bar d-flex justify-content-between align-items-center flex-wrap gap-2">
+            <span class="text-muted small">ออเดอร์ทั้งหมด @totalOrders รายการ</span>
+            <div class="d-flex gap-3">
+                <span class="small"><span class="status-select status-pending px-2 py-1" style="border-radius:50px;font-size:0.72rem;">⏳ รอดำเนินการ</span> @pendingOrders</span>
+                <span class="small"><span class="status-select status-completed px-2 py-1" style="border-radius:50px;font-size:0.72rem;">✅ สำเร็จ</span> @successOrders</span>
+                <span class="small"><span class="status-select status-cancelled px-2 py-1" style="border-radius:50px;font-size:0.72rem;">❌ ยกเลิก</span> @cancelOrders</span>
+            </div>
+        </div>
+    </div>
+</div>

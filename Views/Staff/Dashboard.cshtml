@@ -1,0 +1,651 @@
+@model IEnumerable<Project_CakeShop_66095681.Models.Db.Order>
+@{
+    Layout = null;
+    var products = ViewBag.AllProducts as List<Project_CakeShop_66095681.Models.Db.Product>;
+}
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Cake Shop POS - Terminal</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        *, *::before, *::after { box-sizing: border-box; }
+
+        :root {
+            --sidebar-w: 90px;
+            --primary:   #6366f1;
+            --bg:        #f1f5f9;
+            --white:     #ffffff;
+            --text-dark: #1e293b;
+            --text-muted:#64748b;
+            --border:    #e2e8f0;
+        }
+
+        body {
+            font-family: 'Sarabun', sans-serif;
+            background: var(--bg);
+            height: 100vh;
+            overflow: hidden;
+            margin: 0;
+        }
+
+        /* ===== SIDEBAR ===== */
+        .sidebar {
+            position: fixed;
+            left: 0; top: 0;
+            width: var(--sidebar-w);
+            height: 100vh;
+            background: var(--white);
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            padding: 16px 0;
+            box-shadow: 2px 0 12px rgba(0,0,0,0.06);
+            z-index: 100;
+        }
+
+        .sidebar-logo { font-size: 1.8rem; color: var(--primary); margin-bottom: 20px; }
+
+        .nav-item {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            width: 72px;
+            height: 64px;
+            border-radius: 14px;
+            color: var(--text-muted);
+            text-decoration: none;
+            transition: all 0.2s;
+            margin-bottom: 6px;
+            gap: 3px;
+            cursor: pointer;
+            border: none;
+            background: transparent;
+            font-family: 'Sarabun', sans-serif;
+        }
+
+        .nav-item i    { font-size: 1.35rem; }
+        .nav-item span { font-size: 10px; font-weight: 700; }
+
+        .nav-item:hover, .nav-item.active {
+            background: var(--primary);
+            color: var(--white);
+            box-shadow: 0 4px 14px rgba(99,102,241,0.35);
+        }
+
+        .nav-item.danger { color: #ef4444; }
+        .nav-item.danger:hover { background: #ef4444; color: white; box-shadow: 0 4px 14px rgba(239,68,68,0.3); }
+
+        /* ===== MAIN LAYOUT ===== */
+        .main {
+            margin-left: var(--sidebar-w);
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* ===== TOPBAR ===== */
+        .topbar {
+            background: var(--white);
+            border-bottom: 1px solid var(--border);
+            padding: 12px 24px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            flex-shrink: 0;
+        }
+
+        .topbar-left h2  { font-size: 1.2rem; font-weight: 700; color: var(--text-dark); margin: 0; }
+        .topbar-left span { font-size: 0.8rem; color: var(--text-muted); }
+
+        .topbar-right { display: flex; align-items: center; gap: 10px; }
+
+        .badge-sales {
+            background: #dcfce7; color: #16a34a;
+            font-weight: 700; font-size: 0.85rem;
+            padding: 7px 16px; border-radius: 50px; white-space: nowrap;
+        }
+
+        .btn-export {
+            display: flex; align-items: center; gap: 6px;
+            background: var(--white); border: 1px solid var(--border);
+            color: var(--text-muted); font-weight: 700; font-size: 0.82rem;
+            padding: 7px 14px; border-radius: 50px; cursor: pointer;
+            transition: all 0.2s; font-family: 'Sarabun', sans-serif;
+        }
+        .btn-export:hover { background: var(--primary); color: white; border-color: var(--primary); }
+
+        .search-box {
+            display: flex; align-items: center;
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: 50px; padding: 7px 14px; gap: 8px; width: 200px;
+        }
+        .search-box input {
+            border: none; background: transparent; outline: none;
+            font-family: 'Sarabun', sans-serif; font-size: 0.85rem; width: 100%;
+        }
+
+        .clock-box {
+            background: var(--bg); border: 1px solid var(--border);
+            border-radius: 50px; padding: 7px 14px;
+            font-weight: 700; font-size: 0.85rem; white-space: nowrap;
+        }
+
+        /* ===== BODY ===== */
+        .body-area {
+            flex: 1; display: flex; overflow: hidden; padding: 16px; gap: 16px;
+        }
+
+        /* ===== PRODUCT GRID ===== */
+        .product-area { flex: 1; display: flex; flex-direction: column; overflow: hidden; min-width: 0; }
+
+        .product-grid {
+            flex: 1; overflow-y: auto;
+            display: grid;
+            grid-template-columns: repeat(5, 1fr);
+            gap: 10px; align-content: start; padding-right: 4px;
+        }
+
+        .product-grid::-webkit-scrollbar { width: 5px; }
+        .product-grid::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+
+        .product-card {
+            background: var(--white); border-radius: 16px; overflow: hidden;
+            cursor: pointer; transition: all 0.2s;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.04);
+            border: 2px solid transparent;
+            display: flex; flex-direction: column;
+        }
+
+        .product-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 20px rgba(99,102,241,0.15);
+            border-color: var(--primary);
+        }
+
+        .product-card img { width: 100%; height: 90px; object-fit: cover; }
+
+        .product-card-body {
+            padding: 8px 8px 10px; text-align: center;
+            display: flex; flex-direction: column; align-items: center; gap: 4px;
+        }
+
+        .product-name {
+            font-size: 0.78rem; font-weight: 700; color: var(--text-dark);
+            white-space: nowrap; overflow: hidden; text-overflow: ellipsis; width: 100%;
+        }
+
+        .price-tag {
+            background: var(--primary); color: white;
+            font-size: 0.75rem; font-weight: 700;
+            padding: 2px 10px; border-radius: 20px;
+        }
+
+        .stock-label { font-size: 0.68rem; color: var(--text-muted); }
+
+        .product-card.out-of-stock { opacity: 0.4; cursor: not-allowed; filter: grayscale(0.7); }
+        .product-card.out-of-stock:hover { transform: none; box-shadow: 0 2px 8px rgba(0,0,0,0.04); border-color: transparent; }
+
+        /* ===== BILL PANEL ===== */
+        .bill-panel {
+            width: 320px; flex-shrink: 0;
+            background: var(--white); border-radius: 20px;
+            box-shadow: 0 4px 20px rgba(0,0,0,0.06);
+            display: flex; flex-direction: column; overflow: hidden;
+        }
+
+        .bill-header {
+            padding: 16px 20px 12px; border-bottom: 1px solid var(--border);
+            display: flex; align-items: center; justify-content: space-between; flex-shrink: 0;
+        }
+        .bill-header h5 { margin: 0; font-weight: 700; font-size: 1rem; }
+
+        .btn-clear {
+            background: #fef2f2; color: #ef4444; border: none;
+            border-radius: 8px; padding: 4px 12px; font-size: 0.78rem; font-weight: 700;
+            cursor: pointer; font-family: 'Sarabun', sans-serif; transition: all 0.2s;
+        }
+        .btn-clear:hover { background: #ef4444; color: white; }
+
+        .bill-items { flex: 1; overflow-y: auto; padding: 12px 16px; }
+        .bill-items::-webkit-scrollbar { width: 4px; }
+        .bill-items::-webkit-scrollbar-thumb { background: #e2e8f0; border-radius: 10px; }
+
+        .bill-empty {
+            display: flex; flex-direction: column; align-items: center;
+            justify-content: center; height: 100%; color: #cbd5e1; gap: 8px;
+        }
+        .bill-empty i { font-size: 3rem; }
+        .bill-empty p { font-size: 0.85rem; margin: 0; color: var(--text-muted); }
+
+        .bill-row {
+            display: flex; align-items: center; justify-content: space-between;
+            background: var(--bg); border-radius: 12px; padding: 10px 12px; margin-bottom: 8px;
+        }
+        .bill-row-info { flex: 1; min-width: 0; margin-right: 8px; }
+        .bill-row-name { font-size: 0.82rem; font-weight: 700; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+        .bill-row-price { font-size: 0.78rem; font-weight: 700; color: var(--primary); }
+        .bill-row-controls { display: flex; align-items: center; gap: 5px; flex-shrink: 0; }
+
+        .qty-btn {
+            width: 26px; height: 26px; border-radius: 50%;
+            border: 1.5px solid var(--border); background: var(--white);
+            font-size: 0.9rem; font-weight: 700; cursor: pointer;
+            display: flex; align-items: center; justify-content: center;
+            transition: all 0.2s; color: var(--text-dark);
+        }
+        .qty-btn:hover { background: var(--primary); color: white; border-color: var(--primary); }
+        .qty-btn.remove { border-color: #fecaca; color: #ef4444; }
+        .qty-btn.remove:hover { background: #ef4444; color: white; border-color: #ef4444; }
+        .qty-num { font-size: 0.85rem; font-weight: 700; min-width: 18px; text-align: center; }
+
+        .bill-footer { padding: 14px 16px; border-top: 1px solid var(--border); flex-shrink: 0; }
+
+        .bill-total-row {
+            display: flex; justify-content: space-between; align-items: center;
+            background: var(--bg); border-radius: 14px; padding: 12px 16px; margin-bottom: 12px;
+        }
+        .bill-total-label  { font-size: 1rem; font-weight: 700; }
+        .bill-total-amount { font-size: 1.5rem; font-weight: 700; color: var(--primary); }
+
+        .btn-checkout {
+            width: 100%; background: var(--primary); color: white; border: none;
+            border-radius: 50px; padding: 13px; font-size: 1rem; font-weight: 700;
+            cursor: pointer; font-family: 'Sarabun', sans-serif; transition: all 0.2s;
+            display: flex; align-items: center; justify-content: center; gap: 8px;
+        }
+        .btn-checkout:hover { background: #4f46e5; box-shadow: 0 6px 20px rgba(99,102,241,0.4); transform: translateY(-1px); }
+
+        /* ===== MODAL ===== */
+        .modal-content  { border: none; border-radius: 24px; box-shadow: 0 20px 60px rgba(0,0,0,0.12); }
+        .modal-header   { border-bottom: 1px solid var(--border); padding: 1.25rem 1.5rem; }
+        .modal-footer   { border-top: 1px solid var(--border); padding: 1rem 1.5rem; }
+
+        .form-control {
+            border-radius: 10px; border: 1.5px solid var(--border);
+            padding: 0.55rem 0.9rem; font-family: 'Sarabun', sans-serif; font-size: 0.88rem;
+        }
+        .form-control:focus { border-color: var(--primary); box-shadow: 0 0 0 3px rgba(99,102,241,0.1); }
+
+        .payment-input { font-size: 2.2rem !important; font-weight: 700; text-align: center; border-radius: 14px; }
+        .quick-cash-btn { font-weight: 700; font-size: 1rem; padding: 10px; border-radius: 12px; }
+
+        .promo-table th { background: var(--bg); color: var(--text-muted); font-size: 0.75rem; font-weight: 700; text-transform: uppercase; }
+        .badge-active  { background:#dcfce7; color:#16a34a; border-radius:20px; padding:3px 10px; font-size:0.72rem; font-weight:700; }
+        .badge-expired { background:#fee2e2; color:#dc2626; border-radius:20px; padding:3px 10px; font-size:0.72rem; font-weight:700; }
+
+        @@media (max-width: 1400px) { .product-grid { grid-template-columns: repeat(4, 1fr); } }
+        @@media (max-width: 1100px) { .product-grid { grid-template-columns: repeat(3, 1fr); } .bill-panel { width: 280px; } }
+    </style>
+</head>
+<body>
+
+    <!-- SIDEBAR -->
+    <nav class="sidebar">
+        <div class="sidebar-logo"><i class="bi bi-cake2-fill"></i></div>
+        <a href="/Staff/Dashboard" class="nav-item active"><i class="bi bi-grid-fill"></i><span>ขายของ</span></a>
+        <a href="/Staff/ManageOrders" class="nav-item"><i class="bi bi-receipt"></i><span>ประวัติขาย</span></a>
+        <a href="/Staff/Inventory" class="nav-item"><i class="bi bi-box-seam"></i><span>คลังสินค้า</span></a>
+        <a href="/Staff/StockReport" class="nav-item"><i class="bi bi-file-earmark-bar-graph"></i><span>รายงานสต็อก</span></a>
+        <button class="nav-item" onclick="openPromoModal()"><i class="bi bi-tag-fill"></i><span>โปรโมชัน</span></button>
+        <a href="/Staff/Logout" class="nav-item danger mt-auto"><i class="bi bi-box-arrow-right"></i><span>ออก</span></a>
+    </nav>
+
+    <!-- MAIN -->
+    <div class="main">
+
+        <!-- TOPBAR -->
+        <div class="topbar">
+            <div class="topbar-left">
+                <h2>Cake Shop Terminal</h2>
+                <span><i class="bi bi-person-circle text-primary me-1"></i>@Context.Session.GetString("UserName")</span>
+            </div>
+            <div class="topbar-right">
+                <div class="badge-sales">ยอดวันนี้ &nbsp;฿<span id="todaySalesDisplay">@ViewBag.TodaySales.ToString("N0")</span></div>
+                <button class="btn-export" onclick="exportTodayCSV()"><i class="bi bi-download"></i> Export</button>
+                <div class="search-box">
+                    <i class="bi bi-search text-muted" style="font-size:0.85rem;flex-shrink:0;"></i>
+                    <input type="text" id="searchProduct" placeholder="ค้นหาสินค้า...">
+                </div>
+                <div class="clock-box" id="digital-clock">00:00:00</div>
+            </div>
+        </div>
+
+        <!-- BODY -->
+        <div class="body-area">
+
+            <!-- PRODUCT GRID -->
+            <div class="product-area">
+                <div class="product-grid">
+                    @if (products != null)
+                    {
+                        foreach (var p in products)
+                        {
+                            string imgPath;
+                            if (string.IsNullOrEmpty(p.ProductImage))       imgPath = "/images/no-image.png";
+                            else if (p.ProductImage.StartsWith("/"))         imgPath = p.ProductImage;
+                            else                                             imgPath = "/images/products/" + p.ProductImage;
+
+                            string outClass   = p.StockQty <= 0 ? "out-of-stock" : "";
+                            string onclickFn  = p.StockQty > 0
+                                ? $"addToBill('{p.ProductId}','{p.CakeName.Replace("'","\\'")}',{p.Price})"
+                                : "void(0)";
+
+                            <div class="product-card @outClass" data-name="@p.CakeName" onclick="@onclickFn">
+                                <img src="@imgPath" alt="@p.CakeName" onerror="this.src='/images/no-image.png';">
+                                <div class="product-card-body">
+                                    <div class="product-name" title="@p.CakeName">@p.CakeName</div>
+                                    <span class="price-tag">฿@p.Price.ToString("N0")</span>
+                                    <span class="stock-label">@(p.StockQty <= 0 ? "หมดแล้ว" : $"เหลือ {p.StockQty} ชิ้น")</span>
+                                </div>
+                            </div>
+                        }
+                    }
+                </div>
+            </div>
+
+            <!-- BILL PANEL -->
+            <div class="bill-panel">
+                <div class="bill-header">
+                    <h5><i class="bi bi-receipt text-primary me-2"></i>รายการสั่งซื้อ</h5>
+                    <button class="btn-clear" onclick="clearBill()"><i class="bi bi-trash me-1"></i>ล้างทั้งหมด</button>
+                </div>
+                <div class="bill-items" id="billItems">
+                    <div class="bill-empty">
+                        <i class="bi bi-cart3"></i>
+                        <p>ยังไม่มีสินค้าในบิล</p>
+                    </div>
+                </div>
+                <div class="bill-footer">
+                    <div class="bill-total-row">
+                        <span class="bill-total-label">ยอดรวม</span>
+                        <span class="bill-total-amount">฿<span id="billTotal">0</span></span>
+                    </div>
+                    <button class="btn-checkout" onclick="openPaymentModal()">
+                        <i class="bi bi-cash-stack"></i> ชำระเงิน (ปิดบิล)
+                    </button>
+                </div>
+            </div>
+
+        </div>
+    </div>
+
+    <!-- MODAL: โปรโมชัน -->
+    <div class="modal fade" id="promoModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-lg modal-dialog-centered modal-dialog-scrollable">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title fw-bold"><i class="bi bi-tag-fill text-primary me-2"></i>จัดการโปรโมชัน</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+                <div class="modal-body px-4 py-3">
+                    <div class="rounded-4 p-3 mb-4" style="background:#f8fafc;border:1px solid var(--border);">
+                        <p class="fw-bold text-muted small mb-3">➕ เพิ่มโปรโมชันใหม่</p>
+                        <div class="row g-2">
+                            <div class="col-md-3"><input type="text"   id="newPromoCode"     class="form-control" placeholder="รหัส เช่น SAVE10" maxlength="20"></div>
+                            <div class="col-md-4"><input type="text"   id="newPromoDesc"     class="form-control" placeholder="คำอธิบาย"></div>
+                            <div class="col-md-2"><input type="number" id="newPromoDiscount" class="form-control" placeholder="% ลด" min="1" max="100"></div>
+                            <div class="col-md-2"><input type="date"   id="newPromoEnd"      class="form-control"></div>
+                            <div class="col-md-1"><button class="btn btn-primary w-100 rounded-3 h-100" onclick="addPromo()"><i class="bi bi-plus-lg"></i></button></div>
+                        </div>
+                    </div>
+                    <div class="text-center py-4 text-muted" id="promoLoading">
+                        <div class="spinner-border spinner-border-sm text-primary me-2"></div> กำลังโหลด...
+                    </div>
+                    <table class="table promo-table align-middle mb-0 d-none" id="promoTable">
+                        <thead><tr>
+                            <th>รหัส</th><th>คำอธิบาย</th>
+                            <th class="text-center">ลด %</th><th class="text-center">หมดอายุ</th>
+                            <th class="text-center">สถานะ</th><th class="text-center">ลบ</th>
+                        </tr></thead>
+                        <tbody id="promoTableBody"></tbody>
+                    </table>
+                    <div class="text-center py-4 text-muted d-none" id="promoEmpty">
+                        <i class="bi bi-tag display-4 text-light d-block mb-2"></i>ยังไม่มีโปรโมชัน
+                    </div>
+                </div>
+                <div class="modal-footer"><button class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">ปิด</button></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL: ชำระเงิน -->
+    <div class="modal fade" id="paymentModal" tabindex="-1" aria-hidden="true">
+        <div class="modal-dialog modal-dialog-centered">
+            <div class="modal-content">
+                <div class="modal-header border-0 pb-0">
+                    <h5 class="modal-title fw-bold mx-auto mt-2">ชำระเงิน</h5>
+                </div>
+                <div class="modal-body p-4">
+                    <div class="text-center mb-4 p-3 rounded-4" style="background:#f8fafc;">
+                        <span class="text-muted d-block small mb-1">ยอดที่ต้องจ่าย</span>
+                        <h1 class="display-5 fw-bold text-primary mb-0">฿<span id="modalTotal">0</span></h1>
+                    </div>
+                    <ul class="nav nav-pills nav-fill mb-4 bg-light rounded-pill p-1">
+                        <li class="nav-item">
+                            <button class="nav-link active rounded-pill py-2" data-bs-toggle="pill" data-bs-target="#cash-method">
+                                <i class="bi bi-cash me-1"></i>เงินสด
+                            </button>
+                        </li>
+                        <li class="nav-item">
+                            <button class="nav-link rounded-pill py-2" data-bs-toggle="pill" data-bs-target="#qr-method">
+                                <i class="bi bi-qr-code-scan me-1"></i>QR Code
+                            </button>
+                        </li>
+                    </ul>
+                    <div class="tab-content">
+                        <div class="tab-pane fade show active" id="cash-method">
+                            <label class="small fw-bold text-muted mb-2">รับเงินมา</label>
+                            <input type="number" id="cashInput" class="form-control payment-input mb-3" placeholder="0" oninput="calculateChange()">
+                            <div class="d-flex gap-2 mb-4">
+                                <button class="btn btn-outline-secondary w-100 quick-cash-btn" onclick="quickCash(100)">100</button>
+                                <button class="btn btn-outline-secondary w-100 quick-cash-btn" onclick="quickCash(500)">500</button>
+                                <button class="btn btn-outline-secondary w-100 quick-cash-btn" onclick="quickCash(1000)">1,000</button>
+                                <button class="btn btn-outline-primary w-100 quick-cash-btn" onclick="exactAmount()">พอดี</button>
+                            </div>
+                            <div class="d-flex justify-content-between align-items-center p-3 rounded-4 bg-dark text-white">
+                                <span class="fs-5">เงินทอน</span>
+                                <h3 class="mb-0 fw-bold text-warning">฿<span id="changeAmount">0</span></h3>
+                            </div>
+                        </div>
+                        <div class="tab-pane fade text-center py-2" id="qr-method">
+                            <img src="~/images/promptpay-mockup.jpg" class="img-fluid rounded-4 border p-2 mb-3 shadow-sm" style="max-height:230px;" alt="QR">
+                            <div class="alert alert-info py-2 rounded-pill mb-0">สแกนชำระเงิน <strong id="qrTotalText">0</strong> บาท</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer border-0 pt-0">
+                    <button type="button" class="btn btn-light rounded-pill px-4" data-bs-dismiss="modal">ยกเลิก</button>
+                    <button type="button" id="confirmPayBtn" class="btn btn-primary rounded-pill px-5 fw-bold" onclick="finishOrder()">ยืนยัน</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+    <script>
+        let bill = [];
+        let totalAmount = 0;
+
+        function addToBill(id, name, price) {
+            const ex = bill.find(i => i.id.toString() === id.toString());
+            if (ex) ex.qty++; else bill.push({ id, name, price: parseFloat(price), qty: 1 });
+            renderBill();
+        }
+
+        function changeQty(i, d) {
+            bill[i].qty += d;
+            if (bill[i].qty <= 0) bill.splice(i, 1);
+            renderBill();
+        }
+
+        function removeItem(i) { bill.splice(i, 1); renderBill(); }
+
+        function renderBill() {
+            const el = document.getElementById('billItems');
+            if (!bill.length) {
+                el.innerHTML = `<div class="bill-empty"><i class="bi bi-cart3"></i><p>ยังไม่มีสินค้าในบิล</p></div>`;
+                totalAmount = 0;
+            } else {
+                el.innerHTML = bill.map((item, i) => `
+                    <div class="bill-row">
+                        <div class="bill-row-info">
+                            <div class="bill-row-name" title="${item.name}">${item.name}</div>
+                            <div class="bill-row-price">฿${(item.price * item.qty).toLocaleString()}</div>
+                        </div>
+                        <div class="bill-row-controls">
+                            <button class="qty-btn" onclick="changeQty(${i},-1)">−</button>
+                            <span class="qty-num">${item.qty}</span>
+                            <button class="qty-btn" onclick="changeQty(${i},1)">+</button>
+                            <button class="qty-btn remove" onclick="removeItem(${i})"><i class="bi bi-x" style="font-size:0.85rem;"></i></button>
+                        </div>
+                    </div>`).join('');
+                totalAmount = bill.reduce((s, i) => s + i.price * i.qty, 0);
+            }
+            document.getElementById('billTotal').innerText = totalAmount.toLocaleString();
+        }
+
+        function clearBill() {
+            if (bill.length && confirm('ต้องการล้างบิลนี้ใช่หรือไม่?')) { bill = []; renderBill(); }
+        }
+
+        function openPaymentModal() {
+            if (!bill.length) return alert('กรุณาเลือกสินค้าก่อน');
+            document.getElementById('modalTotal').innerText   = totalAmount.toLocaleString();
+            document.getElementById('qrTotalText').innerText  = totalAmount.toLocaleString();
+            document.getElementById('cashInput').value        = '';
+            document.getElementById('changeAmount').innerText = '0';
+            new bootstrap.Modal(document.getElementById('paymentModal')).show();
+        }
+
+        function calculateChange() {
+            const cash = parseFloat(document.getElementById('cashInput').value) || 0;
+            document.getElementById('changeAmount').innerText = Math.max(0, cash - totalAmount).toLocaleString();
+        }
+
+        function quickCash(a) { document.getElementById('cashInput').value = a; calculateChange(); }
+        function exactAmount() { document.getElementById('cashInput').value = totalAmount; calculateChange(); }
+
+        function finishOrder() {
+            if (!bill.length) return;
+            const btn = document.getElementById('confirmPayBtn');
+            btn.disabled = true;
+            btn.innerHTML = '<span class="spinner-border spinner-border-sm"></span>';
+            fetch('/Staff/Checkout', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(bill.map(i => ({ Id: i.id.toString(), Qty: i.qty, Price: i.price })))
+            })
+            .then(r => r.json())
+            .then(d => {
+                if (d.success) { alert('ชำระเงินสำเร็จ!'); location.reload(); }
+                else { alert(d.message); btn.disabled = false; btn.innerText = 'ยืนยัน'; }
+            })
+            .catch(() => { alert('เกิดข้อผิดพลาด'); btn.disabled = false; btn.innerText = 'ยืนยัน'; });
+        }
+
+        function exportTodayCSV() {
+            fetch('/Staff/GetTodayOrdersForExport')
+                .then(r => r.json())
+                .then(orders => {
+                    if (!orders?.length) return alert('ไม่มีข้อมูลการขายวันนี้');
+                    let csv = '\uFEFF' + 'ลำดับ,Order ID,วันที่,ยอดรวม (บาท),สถานะ\n';
+                    orders.forEach((o, i) => {
+                        // ใส่ tab ข้างหน้าวันที่ เพื่อป้องกัน Excel แปลงเป็น ######
+                        csv += `${i+1},${o.orderId},\t${o.orderDate},${o.totalPrice},${o.orderStatus}\n`;
+                    });
+                    const grandTotal = orders.reduce((s, o) => s + o.totalPrice, 0);
+                    csv += `\n,,,"ยอดรวมทั้งหมด",${grandTotal.toLocaleString()} บาท`;
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(new Blob([csv], { type: 'text/csv;charset=utf-8;' }));
+                    a.download = `sales_${new Date().toISOString().slice(0,10)}.csv`;
+                    a.click();
+                })
+                .catch(() => alert('เกิดข้อผิดพลาดในการ Export'));
+        }
+
+        function openPromoModal() {
+            new bootstrap.Modal(document.getElementById('promoModal')).show();
+            loadPromos();
+        }
+
+        function loadPromos() {
+            document.getElementById('promoLoading').classList.remove('d-none');
+            document.getElementById('promoTable').classList.add('d-none');
+            document.getElementById('promoEmpty').classList.add('d-none');
+            fetch('/Staff/GetPromotions')
+                .then(r => r.json())
+                .then(data => {
+                    document.getElementById('promoLoading').classList.add('d-none');
+                    if (!data?.length) { document.getElementById('promoEmpty').classList.remove('d-none'); return; }
+                    const today = new Date().toISOString().slice(0,10);
+                    document.getElementById('promoTableBody').innerHTML = data.map(p => {
+                        const ok = !p.endDate || p.endDate >= today;
+                        return `<tr>
+                            <td><span class="fw-bold text-primary">${p.promoCode}</span></td>
+                            <td>${p.description ?? '-'}</td>
+                            <td class="text-center fw-bold">${p.discountPercent}%</td>
+                            <td class="text-center">${p.endDate ?? '-'}</td>
+                            <td class="text-center"><span class="${ok?'badge-active':'badge-expired'}">${ok?'ใช้งานได้':'หมดอายุ'}</span></td>
+                            <td class="text-center">
+                                <button class="btn btn-sm btn-outline-danger rounded-circle" style="width:30px;height:30px;padding:0;" onclick="deletePromo('${p.promoCode}')">
+                                    <i class="bi bi-trash3" style="font-size:0.72rem;"></i>
+                                </button>
+                            </td></tr>`;
+                    }).join('');
+                    document.getElementById('promoTable').classList.remove('d-none');
+                })
+                .catch(() => {
+                    document.getElementById('promoLoading').classList.add('d-none');
+                    document.getElementById('promoEmpty').classList.remove('d-none');
+                });
+        }
+
+        function addPromo() {
+            const code = document.getElementById('newPromoCode').value.trim();
+            const desc = document.getElementById('newPromoDesc').value.trim();
+            const pct  = parseInt(document.getElementById('newPromoDiscount').value);
+            const end  = document.getElementById('newPromoEnd').value;
+            if (!code || !pct || pct < 1 || pct > 100) return alert('กรุณากรอกรหัสและเปอร์เซ็นต์ลด (1-100%) ให้ครบ');
+            const fd = new FormData();
+            fd.append('promoCode', code); fd.append('description', desc);
+            fd.append('discountPercent', pct); fd.append('endDate', end);
+            fetch('/Staff/AddPromotion', { method: 'POST', body: fd })
+                .then(r => r.json())
+                .then(d => {
+                    if (d.success) {
+                        ['newPromoCode','newPromoDesc','newPromoDiscount','newPromoEnd'].forEach(id => document.getElementById(id).value = '');
+                        loadPromos();
+                    } else alert('เกิดข้อผิดพลาด: ' + (d.message ?? ''));
+                });
+        }
+
+        function deletePromo(code) {
+            if (!confirm(`ยืนยันลบโปรโมชัน "${code}" ?`)) return;
+            const fd = new FormData(); fd.append('promoCode', code);
+            fetch('/Staff/DeletePromotion', { method: 'POST', body: fd })
+                .then(r => r.json()).then(d => { if (d.success) loadPromos(); });
+        }
+
+        document.getElementById('searchProduct').addEventListener('input', e => {
+            const t = e.target.value.toLowerCase();
+            document.querySelectorAll('.product-card').forEach(c => {
+                c.style.display = c.dataset.name.toLowerCase().includes(t) ? '' : 'none';
+            });
+        });
+
+        setInterval(() => {
+            const el = document.getElementById('digital-clock');
+            if (el) el.innerText = new Date().toLocaleTimeString('th-TH');
+        }, 1000);
+    </script>
+</body>
+</html>

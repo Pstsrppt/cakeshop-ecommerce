@@ -1,0 +1,162 @@
+@using System.Globalization
+@model IEnumerable<Project_CakeShop_66095681.Models.Db.StockLog>
+
+@{
+    Layout = null;
+    // ดึงค่าวันที่มา ถ้าไม่มีใช้เวลาปัจจุบัน
+    DateTime dt = ViewBag.RawDate ?? DateTime.Today;
+    
+    // บังคับให้ปีแสดงผลเป็น ค.ศ. สำหรับใส่ใน Input (ป้องกัน Browser งง)
+    string inputDateValue = dt.ToString("yyyy-MM-dd", CultureInfo.InvariantCulture);
+    
+    // ส่วนแสดงผล Badge ให้คนอ่าน (โชว์เป็น พ.ศ.)
+    string thaiDisplay = dt.ToString("dd/MM/") + (dt.Year > 2500 ? dt.Year : dt.Year + 543);
+}
+
+<!DOCTYPE html>
+<html lang="th">
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Stock Movement Report | Cake Shop</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.0/font/bootstrap-icons.css">
+    <link href="https://fonts.googleapis.com/css2?family=Sarabun:wght@300;400;600;700&display=swap" rel="stylesheet">
+
+    <style>
+        :root { --report-bg: #f4f7f6; --accent-color: #6366f1; }
+        body { font-family: 'Sarabun', sans-serif; background-color: var(--report-bg); color: #334155; }
+        .header-section { background: white; padding: 2rem 0; box-shadow: 0 2px 15px rgba(0,0,0,0.05); margin-bottom: 2rem; }
+        .report-card { border: none; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); overflow: hidden; }
+        .table thead { background-color: #f8fafc; }
+        .table thead th { font-weight: 600; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; color: #64748b; padding: 1.25rem 1rem; }
+        .val-pill { padding: 4px 12px; border-radius: 8px; font-weight: 600; font-size: 0.9rem; }
+        .val-opening { background: #eff6ff; color: #1d4ed8; }
+        .val-sold { background: #fef2f2; color: #dc2626; }
+        .val-added { background: #ecfdf5; color: #059669; }
+        .val-closing { background: #f8fafc; color: #1e293b; border: 1px solid #e2e8f0; }
+        .search-box { background: white; border-radius: 15px; padding: 1.5rem; margin-bottom: 2rem; border: 1px solid #e2e8f0; }
+        .product-img { width: 45px; height: 45px; object-fit: cover; border-radius: 10px; }
+        .btn-back-custom {
+            background: white;
+            color: #475569;
+            border: 1px solid #dee2e6;
+            border-radius: 12px;
+            padding: 10px 20px;
+            font-weight: 700;
+            text-decoration: none;
+            display: inline-flex;
+            align-items: center;
+            transition: all 0.3s ease;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.04);
+        }
+        .btn-back-custom:hover {
+            background-color: #6366f1;
+            color: white !important;
+            border-color: #6366f1;
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(99, 102, 241, 0.3);
+        }
+    </style>
+</head>
+<body>
+
+<div class="header-section">
+    <div class="container">
+        <div class="d-flex justify-content-between align-items-center">
+            <div>
+                <a href="/Staff/Dashboard" class="btn-back-custom mb-3">
+                    <i class="bi bi-house-door-fill me-2"></i> กลับหน้าแดชบอร์ด
+                </a>
+                <h2 class="fw-bold mb-0 mt-1"><i class="bi bi-file-earmark-bar-graph me-2 text-primary"></i>รายงานเคลื่อนไหวสต็อก</h2>
+            </div>
+            <div class="text-end">
+                <span class="badge bg-primary px-3 py-2 rounded-pill">ข้อมูลประจำวันที่: @thaiDisplay</span>
+
+                <input type="date" name="searchDate" class="form-control border-start-0" value="@inputDateValue">
+            </div>
+        </div>
+    </div>
+</div>
+
+<div class="container pb-5">
+    <div class="search-box shadow-sm">
+        <form asp-action="StockReport" method="get" class="row g-3 align-items-end">
+            <div class="col-md-4">
+                <label class="form-label small fw-bold text-muted">เลือกวันที่ต้องการตรวจสอบ</label>
+                <div class="input-group">
+                    <span class="input-group-text bg-white border-end-0"><i class="bi bi-calendar3"></i></span>
+                    <input type="date" name="searchDate" class="form-control border-start-0" value="@inputDateValue">
+                </div>
+            </div>
+            <div class="col-md-2">
+                <button type="submit" class="btn btn-primary w-100 rounded-3 py-2 fw-bold">
+                    <i class="bi bi-search me-1"></i> ดึงข้อมูล
+                </button>
+            </div>
+        </form>
+    </div>
+
+    <div class="card report-card border-0">
+        <div class="table-responsive">
+            <table class="table table-hover align-middle mb-0">
+                <thead>
+                    <tr>
+                        <th class="ps-4">สินค้า</th>
+                        <th class="text-center">ยกมา (ต้นวัน)</th>
+                        <th class="text-center">ขายไป (-)</th>
+                        <th class="text-center">เติมเพิ่ม (+)</th>
+                        <th class="text-center">คงเหลือ (สิ้นวัน)</th>
+                        <th class="text-center">ตรวจสอบ</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    @if (!Model.Any())
+                    {
+                        <tr>
+                            <td colspan="6" class="text-center py-5 text-muted">
+                                <i class="bi bi-inbox fs-1 d-block mb-2"></i>
+                                ไม่พบข้อมูลการเคลื่อนไหวสต็อกในวันที่เลือก
+                            </td>
+                        </tr>
+                    }
+                    else
+                    {
+                        @foreach (var log in Model)
+                        {
+                            <tr>
+                                <td class="ps-4">
+                                    <div class="d-flex align-items-center">
+                                        <img src="@(log.Product?.ProductImage ?? "/images/no-image.png")" class="product-img me-3 border">
+                                        <div>
+                                            <div class="fw-bold text-dark">@log.Product?.CakeName</div>
+                                            <small class="text-muted">ID: #@log.ProductId</small>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="text-center"><span class="val-pill val-opening">@log.OpeningQty</span></td>
+                                <td class="text-center"><span class="val-pill val-sold">@log.SoldQty</span></td>
+                                <td class="text-center"><span class="val-pill val-added">@log.AddedQty</span></td>
+                                <td class="text-center"><span class="val-pill val-closing fw-bold">@log.ClosingQty</span></td>
+                                <td class="text-center">
+                                    @{
+                                        int calc = log.OpeningQty - log.SoldQty + log.AddedQty;
+                                        if (calc == log.ClosingQty) {
+                                            <span class="text-success small fw-bold"><i class="bi bi-check-circle-fill me-1"></i>ยอดตรง</span>
+                                        } else {
+                                            <span class="text-danger small fw-bold"><i class="bi bi-exclamation-triangle-fill me-1"></i>ดิฟ @(log.ClosingQty - calc)</span>
+                                        }
+                                    }
+                                </td>
+                            </tr>
+                        }
+                    }
+                </tbody>
+            </table>
+        </div>
+    </div>
+</div>
+
+<script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -1,0 +1,236 @@
+@model IEnumerable<Project_CakeShop_66095681.Models.Db.Product>
+@{
+    ViewData["Title"] = "จัดการสต็อกสินค้า";
+}
+
+<style>
+    body { font-family: 'Kanit', sans-serif; background: #f8f9fa; }
+
+    .page-header {
+        background: linear-gradient(135deg, #0ea5e9, #0284c7);
+        border-radius: 20px;
+        padding: 28px 32px;
+        color: white;
+        margin-bottom: 24px;
+    }
+
+    .products-card {
+        background: white;
+        border-radius: 16px;
+        overflow: hidden;
+        border: 1px solid #f0f0f0;
+        box-shadow: 0 2px 10px rgba(0,0,0,0.04);
+    }
+
+    .table thead th {
+        background: #f8fafc;
+        color: #64748b;
+        font-size: 0.78rem;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        padding: 14px 20px;
+        border-bottom: 1px solid #f1f5f9;
+    }
+
+    .table tbody td { padding: 14px 20px; vertical-align: middle; border-bottom: 1px solid #f8f8f8; }
+    .table tbody tr:last-child td { border-bottom: none; }
+    .table tbody tr:hover { background: #f0f9ff; }
+
+    .product-img {
+        width: 52px; height: 52px; border-radius: 12px;
+        object-fit: cover; border: 1px solid #f0f0f0; flex-shrink: 0;
+    }
+
+    .product-name { font-weight: 700; font-size: 0.9rem; color: #1e293b; }
+    .product-id   { font-size: 0.72rem; color: #94a3b8; margin-top: 2px; }
+
+    /* ✅ เปลี่ยนจากส้มเป็นเทาเข้ม */
+    .price-val { font-weight: 700; color: #334155; }
+
+    .stock-pill {
+        display: inline-flex; align-items: center; gap: 5px;
+        padding: 5px 12px; border-radius: 50px;
+        font-size: 0.75rem; font-weight: 700;
+    }
+    .stock-ok    { background: #dcfce7; color: #16a34a; border: 1px solid #bbf7d0; }
+    .stock-warn  { background: #fef3c7; color: #92400e; border: 1px solid #fde68a; }
+    .stock-empty { background: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }
+
+    .discount-tag {
+        background: #e0f2fe; color: #0284c7;
+        padding: 4px 10px; border-radius: 6px;
+        font-size: 0.75rem; font-weight: 700;
+        border: 1px solid #bae6fd;
+    }
+
+    .btn-edit {
+        background: #eff6ff; color: #3b82f6; border: none;
+        border-radius: 8px; width: 34px; height: 34px;
+        display: inline-flex; align-items: center; justify-content: center;
+        text-decoration: none; transition: 0.2s; font-size: 0.82rem;
+    }
+    .btn-edit:hover { background: #3b82f6; color: white; }
+
+    .btn-delete {
+        background: #fef2f2; color: #ef4444; border: none;
+        border-radius: 8px; width: 34px; height: 34px;
+        display: inline-flex; align-items: center; justify-content: center;
+        cursor: pointer; transition: 0.2s; font-size: 0.82rem;
+    }
+    .btn-delete:hover { background: #ef4444; color: white; }
+
+    /* ✅ เปลี่ยนปุ่มเพิ่มสินค้าจากส้มเป็นขาว */
+    .btn-add {
+        background: white; color: #0284c7;
+        border: 2px solid rgba(255,255,255,0.6);
+        border-radius: 12px; padding: 10px 22px;
+        font-weight: 700; font-size: 0.88rem;
+        text-decoration: none; transition: 0.2s;
+        display: inline-flex; align-items: center; gap: 6px;
+    }
+    .btn-add:hover { background: #0284c7; color: white; border-color: #0284c7; }
+
+    .stat-chip {
+        background: rgba(255,255,255,0.2);
+        border-radius: 50px; padding: 6px 16px;
+        font-size: 0.85rem; font-weight: 700;
+        display: inline-block;
+    }
+
+    .summary-bar {
+        background: #f8fafc; border-top: 1px solid #f1f5f9;
+        padding: 14px 20px; display: flex;
+        justify-content: space-between; align-items: center;
+    }
+
+    /* ✅ เปลี่ยนมูลค่าคลังจากส้มเป็นเทาเข้ม */
+    .total-value { font-weight: 700; color: #334155; }
+
+    .empty-state { text-align: center; padding: 60px 20px; color: #94a3b8; }
+    .empty-state i { font-size: 3.5rem; margin-bottom: 16px; display: block; }
+</style>
+
+<div class="container-fluid px-4 py-4">
+
+    <div class="page-header">
+        <div class="d-flex justify-content-between align-items-center flex-wrap gap-3">
+            <div>
+                <a asp-controller="Admin" asp-action="Dashboard"
+                   class="text-white text-decoration-none opacity-75 small d-inline-flex align-items-center gap-1 mb-2">
+                    <i class="bi bi-chevron-left"></i> กลับหน้า Dashboard
+                </a>
+                <h3 class="fw-bold mb-1">📦 จัดการสต็อกสินค้า</h3>
+                <p class="mb-0 opacity-75 small">รายการสินค้าและจำนวนสต็อกทั้งหมด</p>
+            </div>
+            <div class="d-flex align-items-center gap-3 flex-wrap">
+                <div class="d-flex gap-2 flex-wrap">
+                    <span class="stat-chip">ทั้งหมด @Model.Count() รายการ</span>
+                    <span class="stat-chip">หมด @Model.Count(p => p.StockQty <= 0)</span>
+                    <span class="stat-chip">ใกล้หมด @Model.Count(p => p.StockQty > 0 && p.StockQty <= 5)</span>
+                </div>
+                <a asp-action="CreateProduct" class="btn-add">
+                    <i class="bi bi-plus-lg"></i> เพิ่มสินค้าใหม่
+                </a>
+            </div>
+        </div>
+    </div>
+
+    <div class="products-card">
+        @if (Model != null && Model.Any())
+        {
+            <div class="table-responsive">
+                <table class="table mb-0">
+                    <thead>
+                        <tr>
+                            <th>สินค้า</th>
+                            <th>ราคา</th>
+                            <th>สต็อก</th>
+                            <th>ส่วนลด</th>
+                            <th>วันหมดอายุ</th>
+                            <th class="text-center">จัดการ</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        @foreach (var item in Model)
+                        {
+                            string imgPath = string.IsNullOrEmpty(item.ProductImage) ? "/images/no-image.png"
+                                           : item.ProductImage.StartsWith("/") ? item.ProductImage
+                                           : "/images/products/" + item.ProductImage;
+
+                            string stockClass = item.StockQty <= 0 ? "stock-empty"
+                                              : item.StockQty <= 5 ? "stock-warn" : "stock-ok";
+                            string stockIcon  = item.StockQty <= 0 ? "bi-x-circle"
+                                              : item.StockQty <= 5 ? "bi-exclamation-triangle" : "bi-check2-circle";
+                            string stockText  = item.StockQty <= 0 ? "หมด"
+                                              : item.StockQty <= 5 ? $"ใกล้หมด: {item.StockQty}" : $"ปกติ: {item.StockQty}";
+
+                            <tr>
+                                <td>
+                                    <div class="d-flex align-items-center gap-3">
+                                        <img src="@imgPath" class="product-img" alt="@item.CakeName"
+                                             onerror="this.src='/images/no-image.png'">
+                                        <div>
+                                            <div class="product-name">@item.CakeName</div>
+                                            <div class="product-id">#@item.ProductId</div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td><span class="price-val">฿@item.Price.ToString("N0")</span></td>
+                                <td>
+                                    <span class="stock-pill @stockClass">
+                                        <i class="bi @stockIcon"></i> @stockText
+                                    </span>
+                                </td>
+                                <td>
+                                    @if (item.DiscountAmount > 0)
+                                    {
+                                        <span class="discount-tag">ลด ฿@item.DiscountAmount?.ToString("N0")</span>
+                                    }
+                                    else
+                                    {
+                                        <span class="text-muted small">—</span>
+                                    }
+                                </td>
+                                <td style="font-size:0.85rem; color:#64748b;">
+                                    @(item.ExpiryDate.HasValue ? item.ExpiryDate.Value.ToString("dd/MM/yyyy") : "—")
+                                </td>
+                                <td>
+                                    <div class="d-flex justify-content-center gap-2">
+                                        <a asp-action="EditProduct" asp-route-id="@item.ProductId"
+                                           class="btn-edit" title="แก้ไข">
+                                            <i class="bi bi-pencil"></i>
+                                        </a>
+                                        <form asp-action="DeleteProduct" asp-route-id="@item.ProductId" method="post"
+                                              onsubmit="return confirm('ลบ @item.CakeName ?')" style="display:inline;">
+                                            <button type="submit" class="btn-delete" title="ลบ">
+                                                <i class="bi bi-trash"></i>
+                                            </button>
+                                        </form>
+                                    </div>
+                                </td>
+                            </tr>
+                        }
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="summary-bar">
+                <span class="text-muted small">สินค้าทั้งหมด @Model.Count() รายการ</span>
+                <span class="total-value">
+                    มูลค่าคลัง: ฿@Model.Sum(p => p.Price * p.StockQty).ToString("N0")
+                </span>
+            </div>
+        }
+        else
+        {
+            <div class="empty-state">
+                <i class="bi bi-inbox"></i>
+                <h5 class="fw-bold text-muted">ยังไม่มีสินค้า</h5>
+                <a asp-action="CreateProduct" class="btn btn-primary rounded-pill px-4 mt-2 fw-bold">
+                    <i class="bi bi-plus-lg me-1"></i> เพิ่มสินค้าชิ้นแรก
+                </a>
+            </div>
+        }
+    </div>
+</div>
