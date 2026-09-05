@@ -1,6 +1,6 @@
-# 🎂 CakeShop — Online Bakery Management System
+# 🎂 CakeShop — ระบบจัดการร้านเค้กออนไลน์
 
-A full-stack **e-commerce and inventory management platform** for a cake shop, built with **ASP.NET Core MVC** and **MySQL**. The system supports three distinct roles — Customer, Staff, and Admin — each with a dedicated workflow, from browsing and ordering cakes to managing stock, promotions, and sales reports.
+เว็บแอปพลิเคชัน **e-commerce และระบบจัดการสต๊อกสินค้า** สำหรับร้านเค้ก พัฒนาด้วย **ASP.NET Core MVC** และ **MySQL** รองรับการทำงาน 3 บทบาท — ลูกค้า (Customer), พนักงาน (Staff) และผู้ดูแลระบบ (Admin) — แต่ละบทบาทมีหน้าจอและสิทธิ์การใช้งานของตัวเอง ตั้งแต่การเลือกซื้อเค้กไปจนถึงการจัดการสต๊อก โปรโมชั่น และรายงานยอดขาย
 
 ![.NET](https://img.shields.io/badge/.NET-10.0-512BD4?logo=dotnet&logoColor=white)
 ![ASP.NET Core MVC](https://img.shields.io/badge/ASP.NET%20Core-MVC-512BD4?logo=dotnet&logoColor=white)
@@ -10,115 +10,115 @@ A full-stack **e-commerce and inventory management platform** for a cake shop, b
 
 ---
 
-## 📖 Overview
+## 📖 ภาพรวมโปรเจกต์
 
-CakeShop is a role-based web application that digitizes the day-to-day operations of a bakery business — customer ordering, staff order fulfillment, and admin oversight — all in one platform.
+CakeShop คือเว็บแอปที่จำลองการทำงานจริงของร้านเค้ก โดยแบ่งสิทธิ์การใช้งานตามบทบาท (role-based) ครอบคลุมตั้งแต่การสั่งซื้อของลูกค้า การจัดการคำสั่งซื้อของพนักงาน ไปจนถึงการบริหารภาพรวมร้านของผู้ดูแลระบบ ทั้งหมดอยู่ในระบบเดียว
 
-| Role | Can do |
+| บทบาท | สิ่งที่ทำได้ |
 |------|--------|
-| 🛍️ **Customer** | Browse the catalog, manage a shopping cart, apply promo codes, checkout, track order history, and manage their profile |
-| 👷 **Staff** | Fulfill orders, manage inventory & stock levels, verify payments, run promotions, and view a sales calendar / stock reports |
-| 🛠️ **Admin** | Full product CRUD, order and user management, role assignment, and a sales dashboard |
+| 🛍️ **ลูกค้า (Customer)** | เลือกดูสินค้า จัดการตะกร้าสินค้า ใช้โค้ดส่วนลด ชำระเงิน ดูประวัติการสั่งซื้อ และจัดการโปรไฟล์ |
+| 👷 **พนักงาน (Staff)** | จัดการคำสั่งซื้อ ดูแลสต๊อกสินค้า ตรวจสอบการชำระเงิน จัดการโปรโมชั่น และดูปฏิทิน/รายงานยอดขาย |
+| 🛠️ **ผู้ดูแลระบบ (Admin)** | จัดการสินค้าแบบครบวงจร (CRUD) จัดการคำสั่งซื้อและผู้ใช้ กำหนดสิทธิ์ผู้ใช้ และดูแดชบอร์ดยอดขาย |
 
 ---
 
-## ✨ Features
+## ✨ ฟีเจอร์หลัก
 
-### Customer
-- Product catalog with product detail pages
-- Shopping cart (add / increase / decrease / remove items)
-- Promo code application at checkout
-- Checkout with shipping address
-- Order history tracking
-- Profile management & password change
+### ฝั่งลูกค้า (Customer)
+- หน้ารายการสินค้าพร้อมหน้ารายละเอียดสินค้า
+- ตะกร้าสินค้า (เพิ่ม / เพิ่มจำนวน / ลดจำนวน / ลบสินค้า)
+- ใส่โค้ดส่วนลดตอนชำระเงิน
+- ชำระเงินพร้อมระบุที่อยู่จัดส่ง
+- ติดตามประวัติการสั่งซื้อ
+- จัดการโปรไฟล์และเปลี่ยนรหัสผ่าน
 
-### Staff
-- Inventory management with stock quantity updates
-- Order fulfillment workflow (status updates, payment verification)
-- Sales calendar and stock reports
-- Promotion management (create / delete promo codes)
-- Order export
+### ฝั่งพนักงาน (Staff)
+- จัดการสต๊อกสินค้าและอัปเดตจำนวนคงเหลือ
+- จัดการสถานะคำสั่งซื้อและตรวจสอบการชำระเงิน
+- ปฏิทินยอดขายและรายงานสต๊อก
+- จัดการโปรโมชั่น (สร้าง / ลบโค้ดส่วนลด)
+- ส่งออกข้อมูลคำสั่งซื้อ
 
-### Admin
-- Product management (create, edit, delete, image upload)
-- Order management with date filtering
-- User management with role assignment
-- Sales dashboard (last 7 days sales chart)
+### ฝั่งผู้ดูแลระบบ (Admin)
+- จัดการสินค้า (เพิ่ม แก้ไข ลบ พร้อมอัปโหลดรูปภาพ)
+- จัดการคำสั่งซื้อพร้อมกรองตามวันที่
+- จัดการผู้ใช้และกำหนดสิทธิ์
+- แดชบอร์ดสรุปยอดขาย 7 วันล่าสุด
 
-### Platform
-- Session-based authentication with role-based access control
-- Image upload for product listings
-- Responsive UI built with Bootstrap 5
+### ภาพรวมระบบ
+- ระบบยืนยันตัวตนแบบ Session พร้อมจำกัดสิทธิ์ตามบทบาท (Role-based Access Control)
+- รองรับอัปโหลดรูปภาพสินค้า
+- หน้าจอ Responsive ด้วย Bootstrap 5
 
 ---
 
-## 🏗️ Tech Stack
+## 🏗️ เทคโนโลยีที่ใช้
 
-| Layer | Technology |
+| ส่วนประกอบ | เทคโนโลยี |
 |---|---|
 | Framework | ASP.NET Core MVC (.NET 10) |
 | ORM | Entity Framework Core 9 |
-| Database | MySQL (via [Pomelo.EntityFrameworkCore.MySql](https://github.com/PomeloFoundation/Pomelo.EntityFrameworkCore.MySql)) |
+| ฐานข้อมูล | MySQL (ผ่าน [Pomelo.EntityFrameworkCore.MySql](https://github.com/PomeloFoundation/Pomelo.EntityFrameworkCore.MySql)) |
 | Frontend | Razor Views, Bootstrap 5, jQuery, jQuery Validation |
-| Auth | Session-based (`ASP.NET Core Session`) |
+| การยืนยันตัวตน | Session-based (`ASP.NET Core Session`) |
 
 ---
 
-## 📂 Project Structure
+## 📂 โครงสร้างโปรเจกต์
 
 ```
 Project_CakeShop_66095681/
 ├── Controllers/
-│   ├── HomeController.cs        # Landing page
-│   ├── UserController.cs        # Customer: auth, catalog, cart, checkout
-│   ├── StaffController.cs       # Staff: inventory, orders, promotions
-│   └── AdminController.cs       # Admin: products, orders, users, dashboard
+│   ├── HomeController.cs        # หน้าแรกของเว็บ
+│   ├── UserController.cs        # ลูกค้า: ล็อกอิน, สินค้า, ตะกร้า, ชำระเงิน
+│   ├── StaffController.cs       # พนักงาน: สต๊อก, คำสั่งซื้อ, โปรโมชั่น
+│   └── AdminController.cs       # ผู้ดูแลระบบ: สินค้า, คำสั่งซื้อ, ผู้ใช้, แดชบอร์ด
 ├── Models/
 │   ├── Db/                      # EF Core entities (Product, Order, User, ...)
 │   └── ...                      # View models (Login, Register, CartItem, ...)
 ├── Views/
-│   ├── User/ Staff/ Admin/      # Role-specific views
-│   └── Shared/                  # Shared layout & navbars per role
-├── wwwroot/                     # Static assets (css, js, images, client libs)
-├── migration_add_columns.sql    # Manual SQL migration for orders table
-└── Program.cs                   # App configuration & DI setup
+│   ├── User/ Staff/ Admin/      # หน้าจอแยกตามบทบาท
+│   └── Shared/                  # Layout และ navbar ที่ใช้ร่วมกัน
+├── wwwroot/                     # ไฟล์ static (css, js, images, client libs)
+├── migration_add_columns.sql    # SQL migration เพิ่มคอลัมน์ในตาราง orders
+└── Program.cs                   # ตั้งค่าแอปและ Dependency Injection
 ```
 
 ---
 
-## 🗄️ Database Schema
+## 🗄️ โครงสร้างฐานข้อมูล
 
-Core entities managed via EF Core (`Csi402dbContext`):
+ตารางหลักที่จัดการผ่าน EF Core (`Csi402dbContext`):
 
-- **users** — account info, credentials, role (`Customer` / `Staff` / `Admin`)
-- **products** — cake catalog: name, price, discount, stock quantity, expiry date, image
-- **orders** — customer orders: status, payment status, shipping address, total price
-- **orderdetails** — line items linking orders to products
-- **promotions** — promo codes with discount percentage
-- **stocklog** — inventory movement audit log
+- **users** — ข้อมูลบัญชีผู้ใช้, รหัสผ่าน, บทบาท (`Customer` / `Staff` / `Admin`)
+- **products** — แคตตาล็อกสินค้า: ชื่อ, ราคา, ส่วนลด, จำนวนคงเหลือ, วันหมดอายุ, รูปภาพ
+- **orders** — คำสั่งซื้อ: สถานะ, สถานะการชำระเงิน, ที่อยู่จัดส่ง, ยอดรวม
+- **orderdetails** — รายการสินค้าย่อยในแต่ละคำสั่งซื้อ
+- **promotions** — โค้ดส่วนลดพร้อมเปอร์เซ็นต์ส่วนลด
+- **stocklog** — บันทึกความเคลื่อนไหวของสต๊อกสินค้า
 
 ---
 
-## 🚀 Getting Started
+## 🚀 วิธีติดตั้งและรันโปรเจกต์
 
-### Prerequisites
+### สิ่งที่ต้องมีก่อน
 - [.NET 10 SDK](https://dotnet.microsoft.com/download)
 - [MySQL Server](https://dev.mysql.com/downloads/mysql/) (8.0+ / 9.x)
 
-### 1. Clone the repository
+### 1. Clone repository
 ```bash
 git clone https://github.com/Pstsrppt/cakeshop-ecommerce.git
 cd cakeshop-ecommerce
 ```
 
-### 2. Create the database
-Create a MySQL database named `csi402db`, then apply the schema (via the EF Core model or your own SQL dump), followed by:
+### 2. สร้างฐานข้อมูล
+สร้างฐานข้อมูล MySQL ชื่อ `csi402db` แล้วสร้างตารางตาม EF Core model หรือไฟล์ SQL ที่มี จากนั้นรันคำสั่งนี้เพื่ออัปเดตคอลัมน์เพิ่มเติม:
 ```bash
 mysql -u root -p csi402db < migration_add_columns.sql
 ```
 
-### 3. Configure your connection string
-Connection strings are **not** committed to source control. Create `appsettings.Development.json` in the project root (this file is git-ignored):
+### 3. ตั้งค่า Connection String
+**Connection string จะไม่ถูก commit ขึ้น git** ให้สร้างไฟล์ `appsettings.Development.json` ที่ root ของโปรเจกต์เอง (ไฟล์นี้อยู่ใน `.gitignore` แล้ว):
 
 ```json
 {
@@ -128,25 +128,25 @@ Connection strings are **not** committed to source control. Create `appsettings.
 }
 ```
 
-> **Note:** `AllowPublicKeyRetrieval=True` is required when connecting to MySQL 8+/9 servers using the default `caching_sha2_password` auth plugin without SSL.
+> **หมายเหตุ:** ต้องใส่ `AllowPublicKeyRetrieval=True` เมื่อเชื่อมต่อ MySQL 8+/9 ที่ใช้ auth plugin เริ่มต้นเป็น `caching_sha2_password` โดยไม่ได้เปิดใช้ SSL ไม่งั้นจะเจอ error "Access denied" ทั้งที่รหัสผ่านถูกต้อง
 
-### 4. Restore & run
+### 4. Restore และรันโปรเจกต์
 ```bash
 dotnet restore
 dotnet run
 ```
 
-The app will be available at `http://localhost:5000`.
+เปิดใช้งานได้ที่ `http://localhost:5000`
 
 ---
 
-## 🔒 Security Notes
+## 🔒 หมายเหตุด้านความปลอดภัย
 
-- Database credentials are kept out of source control via `appsettings.Development.json` (git-ignored) — see `appsettings.json` for the expected configuration shape.
-- ⚠️ **User passwords are currently stored and compared as plain text** (`UserController.Login` / `ChangePassword`). This is acceptable for coursework demo purposes only — **do not deploy this to production or reuse real user data without adding proper password hashing (e.g. BCrypt/ASP.NET Core Identity)**.
+- รหัสผ่านฐานข้อมูลถูกแยกออกจากซอร์สโค้ดแล้ว โดยเก็บไว้ใน `appsettings.Development.json` (ไม่ถูก commit) ดูรูปแบบที่ต้องตั้งค่าได้จาก `appsettings.json`
+- ⚠️ **รหัสผ่านผู้ใช้ปัจจุบันถูกเก็บและเปรียบเทียบแบบ plain text** (ใน `UserController.Login` / `ChangePassword`) ซึ่งเหมาะสำหรับการส่งงานเรียน/เดโมเท่านั้น **ห้ามนำไปใช้งานจริงหรือใช้กับข้อมูลผู้ใช้จริงโดยไม่เพิ่มระบบ hash รหัสผ่านก่อน (เช่น BCrypt หรือ ASP.NET Core Identity)**
 
 ---
 
 ## 📜 License
 
-This project was built for educational purposes (CSI402 coursework).
+โปรเจกต์นี้จัดทำขึ้นเพื่อการศึกษา (งานรายวิชา CSI402)
