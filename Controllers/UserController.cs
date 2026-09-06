@@ -38,6 +38,12 @@ namespace Project_CakeShop_66095681.Controllers
         {
             if (ModelState.IsValid)
             {
+                if (_db.Users.Any(u => u.Username == model.Username))
+                {
+                    ViewBag.Error = "ชื่อผู้ใช้นี้ถูกใช้งานแล้ว กรุณาเลือกชื่อผู้ใช้อื่น";
+                    return View(model);
+                }
+
                 var newUser = new User
                 {
                     FullName = model.FullName,

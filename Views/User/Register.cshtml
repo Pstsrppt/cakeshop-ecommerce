@@ -204,6 +204,11 @@
                 <p>Start your sweet journey with us today.</p>
             </div>
 
+            @if (ViewBag.Error != null)
+            {
+                <div class="alert alert-danger" role="alert">@ViewBag.Error</div>
+            }
+
             <form asp-action="Register" method="post">
                 <div class="form-group">
                     <label class="form-label">Full Name</label>

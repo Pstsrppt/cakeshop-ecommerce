@@ -12,7 +12,7 @@ A full-stack e-commerce and point-of-sale system for a cake shop, built with ASP
 
 ### Customer
 - Registration and login with role-based redirection
-- Browse products by category, with sold-out state handling
+- Browse the product catalogue, with sold-out state handling
 - Shopping cart stored in session
 - Promo code validation and automatic quantity discounts
 - Checkout with delivery address and PromptPay QR payment
