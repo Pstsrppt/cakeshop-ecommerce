@@ -57,13 +57,11 @@ Six main tables managed through Entity Framework Core:
 
 ## Documentation
 
-System analysis documents are available in [`docs/`](docs/):
+Full system analysis document: [`docs/CakeShop_DFD_Flowchart.pdf`](docs/CakeShop_DFD_Flowchart.pdf)
 
-- **Context Diagram (DFD Level 0)** — system overview with external entities and data stores
-- **DFD Level 1** — decomposed processes for Customer (9), Staff (6), and Admin (4)
-- **Flowcharts** — registration and login, shopping and checkout, POS and inventory, admin operations
-
-> _Diagrams pending upload — coming soon._
+- **Context Diagram (DFD Level 0)** — the 3 external entities (Customer, Staff, Admin) and their data flows with the system
+- **DFD Level 1** — 6 processes (membership & login, product management, online order processing, POS, inventory, reporting/dashboard) against 6 data stores
+- **Flowcharts** — registration & login, online ordering & checkout, in-store POS checkout
 
 ---
 
