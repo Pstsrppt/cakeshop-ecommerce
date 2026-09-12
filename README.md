@@ -63,6 +63,8 @@ Full system analysis document: [`docs/CakeShop_DFD_Flowchart.pdf`](docs/CakeShop
 - **DFD Level 1** — 6 processes (membership & login, product management, online order processing, POS, inventory, reporting/dashboard) against 6 data stores
 - **Flowcharts** — registration & login, online ordering & checkout, in-store POS checkout
 
+Also see [`TROUBLESHOOTING.md`](TROUBLESHOOTING.md) — real problems hit during development (MySQL auth quirks, a config bug that silently overrode the connection string, encoding corruption, docs drifting from the actual code) and how each was diagnosed and fixed.
+
 ---
 
 ## Getting Started
